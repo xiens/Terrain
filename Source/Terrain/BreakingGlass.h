@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "delabella.h"
+#include <vector>
 #include "ProceduralMeshComponent.h"
 #include "BreakingGlass.generated.h"
 
@@ -47,12 +48,12 @@ private:
 	void CreateQuad();
 
 
-	//std::vector<int> CalculateTriangleIndices(std::vector< GEOM_FADE2D::Triangle2> triangles,
-	//	TArray<FVector> vertices, std::vector<GEOM_FADE2D::Point2> &triangleVertices);
+	std::vector<int> CalculateTriangleIndices(std::vector<DelaBella_Triangle> triangles,
+		TArray<FVector> vertices, std::vector<DelaBella_Vertex> &triangleVertices);
 
-	//bool IsVertexDefined(std::vector<GEOM_FADE2D::Point2> triangleVertices,
-	//	GEOM_FADE2D::Point2 v,
-	//	std::vector<int>indices, int &oldIndex);
+	bool IsVertexDefined(std::vector<DelaBella_Vertex> triangleVertices,
+		DelaBella_Vertex v,
+		std::vector<int>indices, int &oldIndex);
 
 
 };

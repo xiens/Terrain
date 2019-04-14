@@ -4,8 +4,9 @@
 
 
 #include "BreakingGlass.h"
-#include"Public\Point2.h"
+#include "Public\Point2.h"
 #include <vector>
+
 
 // Sets default values
 ABreakingGlass::ABreakingGlass()
@@ -90,71 +91,79 @@ void ABreakingGlass::DelabellaTest() {
 	idb->Destroy();
 }
 
-//std::vector<int> ABreakingGlass::CalculateTriangleIndices(
-//	std::vector< GEOM_FADE2D::Triangle2> triangles,
-//	TArray<FVector> vertices, 
-//	std::vector<GEOM_FADE2D::Point2> &triangleVertices) {
-//	
-//	std::vector<int> allIndices;; //All unique indices of vertices of triangles
-//	std::vector<int> indices; //vertices of triangles in proper order for creating mesh
-//
-//	GEOM_FADE2D::Point2 currentVertex = *triangles[0].getCorner(0);
-//
-//	int triangleCnt = 0;
-//	int vertexInd = 0;
-//	int i = 0;
-//	int oldIndex = 0;
-//
-//	while (triangleCnt != triangles.size())
-//	{
-//
-//		if (vertexInd == 0) currentVertex = *triangles[triangleCnt].getCorner(0);
-//		else if (vertexInd == 1) currentVertex = *triangles[triangleCnt].getCorner(1);
-//		else if (vertexInd == 2) currentVertex = *triangles[triangleCnt].getCorner(2);
-//
-//
-//		if (IsVertexDefined(triangleVertices, currentVertex, allIndices, oldIndex))
-//		{
-//			indices.push_back(oldIndex);
-//		}
-//		else
-//		{
-//			indices.push_back(i);
-//			allIndices.push_back(i);
-//			triangleVertices.push_back(currentVertex);
-//			i++;
-//		}
-//		vertexInd++; //next vertex of current triangle
-//
-//		if (vertexInd == 3) //next triangle
-//		{
-//			vertexInd = 0;
-//			triangleCnt++;
-//		}
-//	}
-//
-//	return indices;
-//
-//}
-//
-//bool ABreakingGlass::IsVertexDefined(std::vector<GEOM_FADE2D::Point2> triangleVertices, 
-//	GEOM_FADE2D::Point2 v, 
-//	std::vector<int>indices,  int &oldIndex)
-//{
-//
-//	for (int i = 0; i < triangleVertices.size(); i++)
-//	{
-//		count++;
-//		if (v == triangleVertices[i])
-//		{
-//			oldIndex = indices[i];
-//			return true;
-//		}
-//
-//	}
-//
-//	return false;
-//}
+std::vector<int> ABreakingGlass::CalculateTriangleIndices(
+	std::vector<DelaBella_Triangle> triangles,
+	TArray<FVector> vertices, 
+	std::vector<DelaBella_Vertex> &triangleVertices) {
+	
+	std::vector<int> allIndices;; //All unique indices of vertices of triangles
+	std::vector<int> indices; //vertices of triangles in proper order for creating mesh
+
+	DelaBella_Vertex currentVertex = *triangles[0].v[0];
+
+	int triangleCnt = 0;
+	int vertexInd = 0;
+	int i = 0;
+	int oldIndex = 0;
+
+	while (triangleCnt != triangles.size())
+	{
+
+		if (vertexInd == 0) currentVertex = *triangles[triangleCnt].v[0];
+		else if (vertexInd == 1) currentVertex = *triangles[triangleCnt].v[1];
+		else if (vertexInd == 2) currentVertex = *triangles[triangleCnt].v[2];
+
+
+		if (IsVertexDefined(triangleVertices, currentVertex, allIndices, oldIndex))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("old index = %d"), oldIndex)
+			indices.push_back(oldIndex);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("new index = %d"), i)
+			indices.push_back(i);
+			allIndices.push_back(i);
+			triangleVertices.push_back(currentVertex);
+			i++;
+		}
+		vertexInd++; //next vertex of current triangle
+
+		if (vertexInd == 3) //next triangle
+		{
+			vertexInd = 0;
+			triangleCnt++;
+		}
+	}
+
+	return indices;
+
+}
+
+bool ABreakingGlass::IsVertexDefined(std::vector<DelaBella_Vertex> triangleVertices,
+	DelaBella_Vertex v,
+	std::vector<int>indices,  int &oldIndex)
+{
+
+	for (int i = 0; i < triangleVertices.size(); i++)
+	{
+		count++;
+	/*	UE_LOG(LogTemp, Warning, TEXT("current vertex x,y: (%f,%f)"), v.x, v.y)
+		UE_LOG(LogTemp, Warning, TEXT("vertex to compare x,y: (%f,%f)"), triangleVertices[i].x, triangleVertices[i].y)*/
+
+		/*if (v == triangleVertices[i])*/
+		if(v.x < triangleVertices[i].x + 0.01f && v.x > triangleVertices[i].x - 0.01f &&
+		   v.y < triangleVertices[i].y + 0.01f && v.y > triangleVertices[i].y - 0.01f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("going through"))
+			oldIndex = indices[i];
+			return true;
+		}
+
+	}
+
+	return false;
+}
 
 void ABreakingGlass::CreateQuad() {
 
@@ -182,7 +191,7 @@ void ABreakingGlass::CreateQuad() {
 	int verts = idb->Triangulate(POINTS, &cloud->x, &cloud->y, sizeof(Point2));
 
 	std::vector<DelaBella_Triangle> triangles;
-	std::vector<Point2> triangleVertices;  //All unique vertices of triangles
+	std::vector<DelaBella_Vertex> triangleVertices;  //All unique vertices of triangles
 
 	UE_LOG(LogTemp, Warning, TEXT("number of vertices: %d"), verts)
 	 //if positive, all ok 
@@ -193,8 +202,9 @@ void ABreakingGlass::CreateQuad() {
 
 		for (int i = 0; i < tris; i++)
 		{
-				UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
-					, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)
+			UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
+				, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)
+				triangles.push_back(*dela);
 				dela = dela->next;
 		}
 	}
@@ -205,26 +215,20 @@ void ABreakingGlass::CreateQuad() {
 	}
 
 	TArray<int32> Triangles;
-	//Triangles.Add(0);
-	//Triangles.Add(1);
-	//Triangles.Add(3);
-	//Triangles.Add(3);
-	//Triangles.Add(2);
-	//Triangles.Add(0);
 
 	//Calculate triangle indices
 	std::vector<int> triangleIndices;
 	
-	//triangleIndices = CalculateTriangleIndices(triangles, vertices, triangleVertices);
-	/*UE_LOG(LogTemp, Warning, TEXT("Triangle vertices size %d"), triangleVertices.size())
+	triangleIndices = CalculateTriangleIndices(triangles, vertices, triangleVertices);
+	UE_LOG(LogTemp, Warning, TEXT("Triangle vertices size %d"), triangleVertices.size())
 	UE_LOG(LogTemp, Warning, TEXT("Triangle indices size %d"), triangleIndices.size())
-	UE_LOG(LogTemp, Warning, TEXT("Number of triangles %d"), triangles.size())*/
+	UE_LOG(LogTemp, Warning, TEXT("Number of triangles %d"), triangles.size())
 
-	//int i = 0;
-	//for (auto &index : triangleIndices) {
-	//	UE_LOG(LogTemp, Warning, TEXT("Index %d"), i)
-	//		i++;
-	//}
+	int i = 0;
+	for (auto &index : triangleIndices) {
+		UE_LOG(LogTemp, Warning, TEXT("Index %d"), index)
+			i++;
+	}
 
 	//TArray<FVector> normals;
 	//normals.Add(FVector(1, 0, 0));
