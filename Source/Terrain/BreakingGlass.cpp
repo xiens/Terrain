@@ -22,24 +22,26 @@ ABreakingGlass::ABreakingGlass()
 void ABreakingGlass::BeginPlay()
 {
 	Super::BeginPlay();
-	CreateQuad();
+
 	
 }
 
+// This is called when actor is spawned
 void ABreakingGlass::PostActorCreated() {
 	Super::PostActorConstruction();
+	UE_LOG(LogTemp,Warning, TEXT("PostActorConstruction"))
+	CreateQuad();
 }
 
+// This is called when actor is already in level and map is opened
 void ABreakingGlass::PostLoad() {
 	Super::PostLoad();
-	
 }
 
 // Called every frame
 void ABreakingGlass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ABreakingGlass::DelabellaTest() {
@@ -91,10 +93,9 @@ void ABreakingGlass::DelabellaTest() {
 	idb->Destroy();
 }
 
-std::vector<int> ABreakingGlass::CalculateTriangleIndices(
-	std::vector<DelaBella_Triangle> triangles,
-	TArray<FVector> vertices, 
-	std::vector<DelaBella_Vertex> &triangleVertices) {
+std::vector<int> ABreakingGlass::CalculateTriangleIndices(std::vector<DelaBella_Triangle> triangles,
+	std::vector<DelaBella_Vertex> &triangleVertices) 
+{
 	
 	std::vector<int> allIndices;; //All unique indices of vertices of triangles
 	std::vector<int> indices; //vertices of triangles in proper order for creating mesh
@@ -116,12 +117,10 @@ std::vector<int> ABreakingGlass::CalculateTriangleIndices(
 
 		if (IsVertexDefined(triangleVertices, currentVertex, allIndices, oldIndex))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("old index = %d"), oldIndex)
 			indices.push_back(oldIndex);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("new index = %d"), i)
 			indices.push_back(i);
 			allIndices.push_back(i);
 			triangleVertices.push_back(currentVertex);
@@ -147,13 +146,8 @@ bool ABreakingGlass::IsVertexDefined(std::vector<DelaBella_Vertex> triangleVerti
 
 	for (int i = 0; i < triangleVertices.size(); i++)
 	{
-		count++;
-	/*	UE_LOG(LogTemp, Warning, TEXT("current vertex x,y: (%f,%f)"), v.x, v.y)
-		UE_LOG(LogTemp, Warning, TEXT("vertex to compare x,y: (%f,%f)"), triangleVertices[i].x, triangleVertices[i].y)*/
 
-		/*if (v == triangleVertices[i])*/
-		if(v.x < triangleVertices[i].x + 0.01f && v.x > triangleVertices[i].x - 0.01f &&
-		   v.y < triangleVertices[i].y + 0.01f && v.y > triangleVertices[i].y - 0.01f)
+		if (v.x == triangleVertices[i].x && v.y == triangleVertices[i].y)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("going through"))
 			oldIndex = indices[i];
@@ -170,13 +164,12 @@ void ABreakingGlass::CreateQuad() {
 	TArray<FVector> vertices;
 	int width = 100, height = 100;
 
-	//srand(36341);
 
-	int POINTS = 10;
+	int POINTS = 100;
 
 	Point2* cloud = new Point2[POINTS];
 
-	srand(36341);
+	//srand(36341);
 
 	// gen some random input
 	for (int i = 0; i < POINTS; i++)
@@ -214,12 +207,11 @@ void ABreakingGlass::CreateQuad() {
 		UE_LOG(LogTemp, Warning, TEXT("no points given or all points are colinear"))
 	}
 
-	TArray<int32> Triangles;
 
 	//Calculate triangle indices
 	std::vector<int> triangleIndices;
 	
-	triangleIndices = CalculateTriangleIndices(triangles, vertices, triangleVertices);
+	triangleIndices = CalculateTriangleIndices(triangles, triangleVertices);
 	UE_LOG(LogTemp, Warning, TEXT("Triangle vertices size %d"), triangleVertices.size())
 	UE_LOG(LogTemp, Warning, TEXT("Triangle indices size %d"), triangleIndices.size())
 	UE_LOG(LogTemp, Warning, TEXT("Number of triangles %d"), triangles.size())
@@ -229,34 +221,44 @@ void ABreakingGlass::CreateQuad() {
 		UE_LOG(LogTemp, Warning, TEXT("Index %d"), index)
 			i++;
 	}
+	TArray<int32> Triangles;
+	for (int i = 0; i < triangleIndices.size(); i++)
+	{
+		Triangles.Add(triangleIndices[i]);
+	}
 
-	//TArray<FVector> normals;
-	//normals.Add(FVector(1, 0, 0));
-	//normals.Add(FVector(1, 0, 0));
-	//normals.Add(FVector(1, 0, 0));
-	//normals.Add(FVector(1, 0, 0));
+	TArray<FVector> normals;
+	TArray<FVector2D> UV0;
+	TArray<FProcMeshTangent> tangents;
+	TArray<FLinearColor> vertexColors;
 
-	//TArray<FVector2D> UV0;
-	//UV0.Add(FVector2D(0, 0));
-	//UV0.Add(FVector2D(10, 0));
-	//UV0.Add(FVector2D(0, 10));
-	//UV0.Add(FVector2D(10, 10));
+	for (int i = 0; i < triangleVertices.size(); i++)
+	{
+		normals.Add(FVector(1, 0, 0));
+		UV0.Add(FVector2D(triangleVertices[i].x, triangleVertices[i].y));
+		tangents.Add(FProcMeshTangent(0, 1, 0));
+		vertexColors.Add(FLinearColor(1, 0, 0, 1.0));
+	}
 
-
-	//TArray<FProcMeshTangent> tangents;
-	//tangents.Add(FProcMeshTangent(0, 1, 0));
-	//tangents.Add(FProcMeshTangent(0, 1, 0));
-	//tangents.Add(FProcMeshTangent(0, 1, 0));
-	//tangents.Add(FProcMeshTangent(0, 1, 0));
-
-	//TArray<FLinearColor> vertexColors;
-	//vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
-	//vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
-	//vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
-	//vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
-
-	//mesh->CreateMeshSection_LinearColor(0, vertices, Triangles, normals, UV0, vertexColors, tangents, true);
-
+	mesh->CreateMeshSection_LinearColor(0, vertices, Triangles, normals, UV0, vertexColors, tangents, true);
+	
 	//// Enable collision data
-	//mesh->ContainsPhysicsTriMeshData(true);
+	mesh->ContainsPhysicsTriMeshData(true);
+
+	//print triangle vertices and vertices
+	for (auto &vert : vertices)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), vert.X, vert.Y)
+	}
+
+	for (size_t i = 0; i < triangles.size(); i++)
+	{
+		for (size_t j = 0; j < 3; j++)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), triangles[i].v[j]->x, , triangles[i].v[j]->y)
+				UE_LOG(LogTemp, Warning, TEXT("v:  %f"), triangles[i].v[j]->x)
+				UE_LOG(LogTemp, Warning, TEXT("v:  %f"), triangles[i].v[j]->y)
+		}
+
+	}
 }

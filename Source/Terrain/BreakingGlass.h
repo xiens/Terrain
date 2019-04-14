@@ -38,7 +38,7 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-		UProceduralMeshComponent * mesh;
+	UProceduralMeshComponent * mesh;
 
 	int count = 0;
 
@@ -48,8 +48,7 @@ private:
 	void CreateQuad();
 
 
-	std::vector<int> CalculateTriangleIndices(std::vector<DelaBella_Triangle> triangles,
-		TArray<FVector> vertices, std::vector<DelaBella_Vertex> &triangleVertices);
+	std::vector<int> CalculateTriangleIndices(std::vector<DelaBella_Triangle> triangles, std::vector<DelaBella_Vertex> &triangleVertices);
 
 	bool IsVertexDefined(std::vector<DelaBella_Vertex> triangleVertices,
 		DelaBella_Vertex v,
