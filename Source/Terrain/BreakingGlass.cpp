@@ -6,6 +6,8 @@
 #include "BreakingGlass.h"
 #include "Public\Point2.h"
 #include <vector>
+#include "CoreUObject/Public/UObject/ConstructorHelpers.h"
+#include "CoreUObject/Public/UObject/Class.h"
 
 
 // Sets default values
@@ -22,7 +24,6 @@ ABreakingGlass::ABreakingGlass()
 void ABreakingGlass::BeginPlay()
 {
 	Super::BeginPlay();
-
 	
 }
 
@@ -139,6 +140,7 @@ std::vector<int> ABreakingGlass::CalculateTriangleIndices(std::vector<DelaBella_
 
 }
 
+
 bool ABreakingGlass::IsVertexDefined(std::vector<DelaBella_Vertex> triangleVertices,
 	DelaBella_Vertex v,
 	std::vector<int>indices,  int &oldIndex)
@@ -149,7 +151,6 @@ bool ABreakingGlass::IsVertexDefined(std::vector<DelaBella_Vertex> triangleVerti
 
 		if (v.x == triangleVertices[i].x && v.y == triangleVertices[i].y)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("going through"))
 			oldIndex = indices[i];
 			return true;
 		}
@@ -159,30 +160,73 @@ bool ABreakingGlass::IsVertexDefined(std::vector<DelaBella_Vertex> triangleVerti
 	return false;
 }
 
+
+void ABreakingGlass::CreateTriangle(TArray<FVector> &vertices, TArray<int32> &triangleIndices, TArray<FVector> &normals,
+	TArray<FVector2D> &UV0,
+	TArray<FProcMeshTangent> &tangents,
+	TArray<FLinearColor> &vertexColors , int i)
+{
+	UProceduralMeshComponent * triangle;
+
+	TArray<FVector> triVerts;
+	TArray<int32> triIndices;
+	TArray<FVector> _normals;
+	TArray<FVector2D> _UV0;
+	TArray<FProcMeshTangent> _tangents;
+	TArray<FLinearColor> _vertexColors;
+
+	for (int v = 0; v < 3; v++) {
+		triVerts.Add(vertices[i + v]);
+		triIndices.Add(triangleIndices[i + v]);
+		_normals.Add(normals[i + v]);
+		_UV0.Add(UV0[i + v]);
+		_tangents.Add(tangents[i + v]);
+		_vertexColors.Add(vertexColors[i + v]);
+	}
+	triangle = CreateDefaultSubobject<UProceduralMeshComponent>(FName("triangle"));
+	triangle->CreateMeshSection_LinearColor(0, triVerts, triIndices, _normals, _UV0, _vertexColors, _tangents, true);
+
+	triangle->SetupAttachment(RootComponent);
+	triangle->SetRelativeRotation(FRotator(FMath::FRandRange(-180.0f, 180.0f), FMath::FRandRange(-180.0f, 180.0f), FMath::FRandRange(-180.0f, 180.0f)));
+	triangle->SetRelativeLocation(FVector(FMath::FRandRange(0, width), FMath::FRandRange(0, width), FMath::FRandRange(0, width)));
+}
+
+void ABreakingGlass::DestroyQuad()
+{
+	UE_LOG(LogTemp, Warning, TEXT("destroying"))
+	mesh->ClearMeshSection(0);
+	int i = 0;
+	CreateTriangle(vertices, Triangles, normals, UV0, tangents, vertexColors, i);
+}
+
 void ABreakingGlass::CreateQuad() {
-
-	TArray<FVector> vertices;
-	int width = 100, height = 100;
-
-
-	int POINTS = 100;
 
 	Point2* cloud = new Point2[POINTS];
 
+	if (POINTS < 5) return;
+
 	//srand(36341);
+	cloud[0] = Point2(-0.5f*width, -0.5f*height);
+	cloud[1] = Point2(0.5f*width, -0.5f*height);
+	cloud[3] = Point2(-0.5f*width, 0.5f*height);
+	cloud[2] = Point2(0.5f*width, 0.5f*height);
+	cloud[4] = Point2(-0.5f*width, -0.501f*height);
 
 	// gen some random input
-	for (int i = 0; i < POINTS; i++)
+	for (int i = 5; i < POINTS; i++)
 	{
-		cloud[i].x = FMath::FRandRange(0, 100);
-		cloud[i].y = FMath::FRandRange(0, 100);
-		vertices.Add(FVector(cloud[i].x, cloud[i].y, 0));
+		cloud[i].x = FMath::FRandRange(-0.5f * width, 0.5f * width);
+		cloud[i].y = FMath::FRandRange(-0.5f * height, 0.5f * height);
 	}
 
-	
 	IDelaBella* idb = IDelaBella::Create();
+	//int verts = idb->Triangulate(POINTS, &cloud->x, &cloud->y, sizeof(Point2));
 	int verts = idb->Triangulate(POINTS, &cloud->x, &cloud->y, sizeof(Point2));
-
+	
+	for (int i = 0; i < verts; i++)
+	{
+		vertices.Add(FVector(cloud[i].x, cloud[i].y, 0));
+	}
 	std::vector<DelaBella_Triangle> triangles;
 	std::vector<DelaBella_Vertex> triangleVertices;  //All unique vertices of triangles
 
@@ -197,6 +241,7 @@ void ABreakingGlass::CreateQuad() {
 		{
 			UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
 				, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)
+				
 				triangles.push_back(*dela);
 				dela = dela->next;
 		}
@@ -212,25 +257,19 @@ void ABreakingGlass::CreateQuad() {
 	std::vector<int> triangleIndices;
 	
 	triangleIndices = CalculateTriangleIndices(triangles, triangleVertices);
-	UE_LOG(LogTemp, Warning, TEXT("Triangle vertices size %d"), triangleVertices.size())
-	UE_LOG(LogTemp, Warning, TEXT("Triangle indices size %d"), triangleIndices.size())
-	UE_LOG(LogTemp, Warning, TEXT("Number of triangles %d"), triangles.size())
 
-	int i = 0;
-	for (auto &index : triangleIndices) {
-		UE_LOG(LogTemp, Warning, TEXT("Index %d"), index)
-			i++;
-	}
-	TArray<int32> Triangles;
+	//int i = 0;
+	//for (auto &index : triangleIndices) {
+	//	UE_LOG(LogTemp, Warning, TEXT("Index %d"), index)
+	//		i++;
+	//}
+
 	for (int i = 0; i < triangleIndices.size(); i++)
 	{
 		Triangles.Add(triangleIndices[i]);
 	}
 
-	TArray<FVector> normals;
-	TArray<FVector2D> UV0;
-	TArray<FProcMeshTangent> tangents;
-	TArray<FLinearColor> vertexColors;
+
 
 	for (int i = 0; i < triangleVertices.size(); i++)
 	{
@@ -245,20 +284,26 @@ void ABreakingGlass::CreateQuad() {
 	//// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
 
-	//print triangle vertices and vertices
-	for (auto &vert : vertices)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), vert.X, vert.Y)
-	}
 
-	for (size_t i = 0; i < triangles.size(); i++)
-	{
-		for (size_t j = 0; j < 3; j++)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), triangles[i].v[j]->x, , triangles[i].v[j]->y)
-				UE_LOG(LogTemp, Warning, TEXT("v:  %f"), triangles[i].v[j]->x)
-				UE_LOG(LogTemp, Warning, TEXT("v:  %f"), triangles[i].v[j]->y)
-		}
 
-	}
+	//int cnt = 0;
+	////print triangle vertices and vertices
+	//for (auto &vert : vertices)
+	//{
+	//	cnt++;
+	//	UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), vert.X, vert.Y)
+	//}
+
+	//for (size_t i = 0; i < triangles.size(); i++)
+	//{
+	//	for (size_t j = 0; j < 3; j++)
+	//	{
+	//		if((i+j) < cnt)
+	//			UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), vertices[i+j].X, vertices[i+j].Y)
+	//		//UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), triangles[i].v[j]->x, , triangles[i].v[j]->y)
+	//			UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), triangles[i].v[j]->x, triangles[i].v[j]->y)
+	//			//UE_LOG(LogTemp, Warning, TEXT("v:  %f"), triangles[i].v[j]->y)
+	//	}
+
+	//}
 }

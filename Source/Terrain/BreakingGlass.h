@@ -36,11 +36,26 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void DestroyQuad();
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UProceduralMeshComponent * mesh;
 
+	UPROPERTY(EditAnywhere)
+	int POINTS = 30; //AT LEAST 20
+
+	float width = 80.0f;
+	float height = 150.0f;
+	
 	int count = 0;
+	//Mesh components
+	TArray<FVector> vertices;
+	TArray<int32> Triangles;
+	TArray<FVector> normals;
+	TArray<FVector2D> UV0;
+	TArray<FProcMeshTangent> tangents;
+	TArray<FLinearColor> vertexColors;
 
 	void PostActorCreated();
 	void PostLoad();
@@ -53,6 +68,13 @@ private:
 	bool IsVertexDefined(std::vector<DelaBella_Vertex> triangleVertices,
 		DelaBella_Vertex v,
 		std::vector<int>indices, int &oldIndex);
+
+	void CreateTriangle(TArray<FVector> &vertices, TArray<int32> &triangleIndices, TArray<FVector> &normals,
+		TArray<FVector2D> &UV0,
+		TArray<FProcMeshTangent> &tangents,
+		TArray<FLinearColor> &vertexColors, int i);
+
+
 
 
 };
