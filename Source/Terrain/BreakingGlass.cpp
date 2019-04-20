@@ -32,66 +32,20 @@ void ABreakingGlass::PostActorCreated() {
 	Super::PostActorConstruction();
 	UE_LOG(LogTemp,Warning, TEXT("PostActorConstruction"))
 	CreateQuad();
+	GenerateTerrain();
 }
 
 // This is called when actor is already in level and map is opened
 void ABreakingGlass::PostLoad() {
 	Super::PostLoad();
+	CreateQuad();
+	GenerateTerrain();
 }
 
 // Called every frame
 void ABreakingGlass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void ABreakingGlass::DelabellaTest() {
-	// somewhere in your code ...
-
-	int POINTS = 1000000;
-
-	struct MyPoint
-	{
-		float x;
-		float y;
-	};
-
-	MyPoint* cloud = new MyPoint[POINTS];
-
-	srand(36341);
-
-	// gen some random input
-	for (int i = 0; i < POINTS; i++)
-	{
-		cloud[i].x = rand();
-		cloud[i].y = rand();
-	}
-
-	IDelaBella* idb = IDelaBella::Create();
-
-	int verts = idb->Triangulate(POINTS, &cloud->x, &cloud->y, sizeof(MyPoint));
-
-	// if positive, all ok 
-	if (verts > 0)
-	{
-		int tris = verts / 3;
-		const DelaBella_Triangle* dela = idb->GetFirstDelaunayTriangle();
-
-		for (int i = 0; i < tris; i++)
-		{
-			// do something with dela triangle 
-			// ...
-			dela = dela->next;
-		}
-	}
-	else
-	{
-		// no points given or all points are colinear
-		// make emergency call ...
-	}
-
-	delete[] cloud;
-	idb->Destroy();
 }
 
 std::vector<int> ABreakingGlass::CalculateTriangleIndices(std::vector<DelaBella_Triangle> triangles,
@@ -161,72 +115,53 @@ bool ABreakingGlass::IsVertexDefined(std::vector<DelaBella_Vertex> triangleVerti
 }
 
 
-void ABreakingGlass::CreateTriangle(TArray<FVector> &vertices, TArray<int32> &triangleIndices, TArray<FVector> &normals,
-	TArray<FVector2D> &UV0,
-	TArray<FProcMeshTangent> &tangents,
-	TArray<FLinearColor> &vertexColors , int i)
+void ABreakingGlass::CreateTriangle(int i)
 {
-	UProceduralMeshComponent * triangle;
-
 	TArray<FVector> triVerts;
-	TArray<int32> triIndices;
+	TArray<int> triIndices;
 	TArray<FVector> _normals;
 	TArray<FVector2D> _UV0;
 	TArray<FProcMeshTangent> _tangents;
 	TArray<FLinearColor> _vertexColors;
 
-	for (int v = 0; v < 3; v++) {
-		triVerts.Add(vertices[i + v]);
-		triIndices.Add(triangleIndices[i + v]);
-		_normals.Add(normals[i + v]);
-		_UV0.Add(UV0[i + v]);
-		_tangents.Add(tangents[i + v]);
-		_vertexColors.Add(vertexColors[i + v]);
+	for (int32 v = 0; v < 3; v++) {
+		triVerts.Add(Vertices[Triangles[i + v]]);
+		triIndices.Add(v);
+		_UV0.Add(UV0[Triangles[i + v]]);
+		_tangents.Add(FProcMeshTangent(0, 1, 0));
+		_vertexColors.Add(FLinearColor(1, 0, 0, 1.0));
+		_normals.Add(FVector(1, 0, 0));
 	}
-	triangle = CreateDefaultSubobject<UProceduralMeshComponent>(FName("triangle"));
-	triangle->CreateMeshSection_LinearColor(0, triVerts, triIndices, _normals, _UV0, _vertexColors, _tangents, true);
+	//UE_LOG(LogTemp, Warning, TEXT("(v %d): (%s) (v %d): (%s) (v %d): (%s) "),triIndices[0],*triVerts[0].ToString(), triIndices[1], *triVerts[1].ToString(), triIndices[2], *triVerts[2].ToString())
 
-	triangle->SetupAttachment(RootComponent);
-	triangle->SetRelativeRotation(FRotator(FMath::FRandRange(-180.0f, 180.0f), FMath::FRandRange(-180.0f, 180.0f), FMath::FRandRange(-180.0f, 180.0f)));
-	triangle->SetRelativeLocation(FVector(FMath::FRandRange(0, width), FMath::FRandRange(0, width), FMath::FRandRange(0, width)));
-}
-
-void ABreakingGlass::DestroyQuad()
-{
-	UE_LOG(LogTemp, Warning, TEXT("destroying"))
-	mesh->ClearMeshSection(0);
-	int i = 0;
-	CreateTriangle(vertices, Triangles, normals, UV0, tangents, vertexColors, i);
+	mesh->CreateMeshSection_LinearColor(triangleInd, triVerts, triIndices, _normals, _UV0, _vertexColors, _tangents, true);
+	triangleInd++;
 }
 
 void ABreakingGlass::CreateQuad() {
 
-	Point2* cloud = new Point2[POINTS];
+	Point2* cloud = new Point2[Points];
 
-	if (POINTS < 5) return;
+	if (Points < 5) return;
 
 	//srand(36341);
-	cloud[0] = Point2(-0.5f*width, -0.5f*height);
-	cloud[1] = Point2(0.5f*width, -0.5f*height);
-	cloud[3] = Point2(-0.5f*width, 0.5f*height);
-	cloud[2] = Point2(0.5f*width, 0.5f*height);
-	cloud[4] = Point2(-0.5f*width, -0.501f*height);
+	cloud[0] = Point2(-0.5f*Width, -0.5f*Height);
+	cloud[1] = Point2(0.5f*Width, -0.5f*Height);
+	cloud[3] = Point2(-0.5f*Width, 0.5f*Height);
+	cloud[2] = Point2(0.5f*Width, 0.5f*Height);
+	cloud[4] = Point2(-0.5f*Width, -0.501f*Height);
 
 	// gen some random input
-	for (int i = 5; i < POINTS; i++)
+	for (int i = 5; i < Points; i++)
 	{
-		cloud[i].x = FMath::FRandRange(-0.5f * width, 0.5f * width);
-		cloud[i].y = FMath::FRandRange(-0.5f * height, 0.5f * height);
+		cloud[i].x = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
+		cloud[i].y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);
 	}
 
 	IDelaBella* idb = IDelaBella::Create();
 	//int verts = idb->Triangulate(POINTS, &cloud->x, &cloud->y, sizeof(Point2));
-	int verts = idb->Triangulate(POINTS, &cloud->x, &cloud->y, sizeof(Point2));
+	int verts = idb->Triangulate(Points, &cloud->x, &cloud->y, sizeof(Point2));
 	
-	for (int i = 0; i < verts; i++)
-	{
-		vertices.Add(FVector(cloud[i].x, cloud[i].y, 0));
-	}
 	std::vector<DelaBella_Triangle> triangles;
 	std::vector<DelaBella_Vertex> triangleVertices;  //All unique vertices of triangles
 
@@ -258,52 +193,94 @@ void ABreakingGlass::CreateQuad() {
 	
 	triangleIndices = CalculateTriangleIndices(triangles, triangleVertices);
 
-	//int i = 0;
-	//for (auto &index : triangleIndices) {
-	//	UE_LOG(LogTemp, Warning, TEXT("Index %d"), index)
-	//		i++;
-	//}
 
 	for (int i = 0; i < triangleIndices.size(); i++)
 	{
 		Triangles.Add(triangleIndices[i]);
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("number of triangle vertices: %d"), triangleVertices.size())
+	UE_LOG(LogTemp, Warning, TEXT("number of vertices: %d"), verts)
 
+	UV0.AddZeroed(triangleVertices.size());
 
 	for (int i = 0; i < triangleVertices.size(); i++)
 	{
-		normals.Add(FVector(1, 0, 0));
-		UV0.Add(FVector2D(triangleVertices[i].x, triangleVertices[i].y));
-		tangents.Add(FProcMeshTangent(0, 1, 0));
-		vertexColors.Add(FLinearColor(1, 0, 0, 1.0));
+		Vertices.Add(FVector(triangleVertices[i].x, triangleVertices[i].y, 0));
+		Normals.Add(FVector(1, 0, 0));
+		float mid = (Width + Height) / 2.0f;
+		//UV0.Add(FVector2D(i*(mid /100.0f)/triangleVertices.size(), i*(mid / 100.0f)/triangleVertices.size()));
+		//UE_LOG(LogTemp, Warning, TEXT("uv: (%s)"), *UV0[i].ToString())
+
+		Tangents.Add(FProcMeshTangent(0, 1, 0));
+		VertexColors.Add(FLinearColor(1, 0, 0, 1.0));
+	}
+	float size = FMath::Sqrt(triangleVertices.size());
+	for (int x = 0; x < size; x++)
+	{
+		for (int y = 0; y < size; y++)
+		{
+			UV0[x*size + y] = FVector2D(x / (size - 1), y / (size - 1));
+		}
+	}
+	for (size_t i = 0; i < triangleVertices.size(); i++){
+		UE_LOG(LogTemp, Warning, TEXT("uv: (%s)"), *UV0[i].ToString())
+	}
+	
+
+	/*delete[] cloud;
+	idb->Destroy();*/
+}
+
+void ABreakingGlass::GenerateTerrain() {
+
+	
+	//System.Random prng = new System.Random(seed);
+	//TODO use seed 
+	FVector2D *octaveOffsets = new FVector2D[octaves];
+	for (int octave = 0; octave < octaves; octave++)
+	{
+		float offsetX = FMath::FRandRange(-100000, 100000)+ offset.X;
+		float offsetY = FMath::FRandRange(-100000, 100000) + offset.Y;
+		octaveOffsets[octave] = FVector2D(offsetX, offsetY);
 	}
 
-	mesh->CreateMeshSection_LinearColor(0, vertices, Triangles, normals, UV0, vertexColors, tangents, true);
-	
+	int j = 0;
+	//PerlinNoise
+	for (int i = 0; i < Points; i++)
+	{
+		float amplitude = 1;
+		float frequency = 1;
+		float noiseHeight = 0;
+		float PerlinValue = 0;
+
+		for (int octave = 0; octave < octaves; octave++)
+		{
+			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
+			float yCoord = Vertices[i].Y * scale  * frequency + octaveOffsets[octave].Y;
+
+			PerlinValue = (FMath::PerlinNoise1D(xCoord) * mHeight + FMath::PerlinNoise1D(yCoord) * mHeight)/2;
+			noiseHeight += PerlinValue * amplitude;
+			amplitude *= persistance; //decreases each octave
+			frequency *= lacunarity;
+		}
+
+		if (noiseHeight > maxNoiseHeight)
+		{
+			maxNoiseHeight = noiseHeight;
+		}
+		else if (noiseHeight < minNoiseHeight)
+		{
+			minNoiseHeight = noiseHeight;
+		}
+
+		Vertices[j].Z = PerlinValue;
+		j++;
+	}
+
+
+	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
+
 	//// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
-
-
-
-	//int cnt = 0;
-	////print triangle vertices and vertices
-	//for (auto &vert : vertices)
-	//{
-	//	cnt++;
-	//	UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), vert.X, vert.Y)
-	//}
-
-	//for (size_t i = 0; i < triangles.size(); i++)
-	//{
-	//	for (size_t j = 0; j < 3; j++)
-	//	{
-	//		if((i+j) < cnt)
-	//			UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), vertices[i+j].X, vertices[i+j].Y)
-	//		//UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), triangles[i].v[j]->x, , triangles[i].v[j]->y)
-	//			UE_LOG(LogTemp, Warning, TEXT("v:  (%f, %f)"), triangles[i].v[j]->x, triangles[i].v[j]->y)
-	//			//UE_LOG(LogTemp, Warning, TEXT("v:  %f"), triangles[i].v[j]->y)
-	//	}
-
-	//}
 }

@@ -44,11 +44,11 @@ void AMeshTest::PostLoad()
 
 void AMeshTest::CreateQuad()
 {
-	TArray<FVector> vertices;
-	vertices.Add(FVector(0,  0,  0));
-	vertices.Add(FVector(0, 100, 0));
-	vertices.Add(FVector(100, 0, 0));
-	vertices.Add(FVector(100, 100, 0));
+	TArray<FVector> Vertices;
+	Vertices.Add(FVector(0,  0,  0));
+	Vertices.Add(FVector(0, 100, 0));
+	Vertices.Add(FVector(100, 0, 0));
+	Vertices.Add(FVector(100, 100, 0));
 
 	TArray<int32> Triangles;
 	Triangles.Add(0);
@@ -58,11 +58,11 @@ void AMeshTest::CreateQuad()
 	Triangles.Add(2);
 	Triangles.Add(0);
 
-	TArray<FVector> normals;
-	normals.Add(FVector(1, 0, 0));
-	normals.Add(FVector(1, 0, 0));
-	normals.Add(FVector(1, 0, 0));
-	normals.Add(FVector(1, 0, 0));
+	TArray<FVector> Normals;
+	Normals.Add(FVector(1, 0, 0));
+	Normals.Add(FVector(1, 0, 0));
+	Normals.Add(FVector(1, 0, 0));
+	Normals.Add(FVector(1, 0, 0));
 
 	TArray<FVector2D> UV0;
 	UV0.Add(FVector2D(0, 0));
@@ -71,19 +71,19 @@ void AMeshTest::CreateQuad()
 	UV0.Add(FVector2D(10, 10));
 
 
-	TArray<FProcMeshTangent> tangents;
-	tangents.Add(FProcMeshTangent(0, 1, 0));
-	tangents.Add(FProcMeshTangent(0, 1, 0));
-	tangents.Add(FProcMeshTangent(0, 1, 0));
-	tangents.Add(FProcMeshTangent(0, 1, 0));
+	TArray<FProcMeshTangent> Tangents;
+	Tangents.Add(FProcMeshTangent(0, 1, 0));
+	Tangents.Add(FProcMeshTangent(0, 1, 0));
+	Tangents.Add(FProcMeshTangent(0, 1, 0));
+	Tangents.Add(FProcMeshTangent(0, 1, 0));
 
-	TArray<FLinearColor> vertexColors;
-	vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
-	vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
-	vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
-	vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
+	TArray<FLinearColor> VertexColors;
+	VertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
+	VertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
+	VertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
+	VertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
 
-	mesh->CreateMeshSection_LinearColor(0, vertices, Triangles, normals, UV0, vertexColors, tangents, true);
+	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
 
 	// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
@@ -93,10 +93,10 @@ void AMeshTest::GenerateTerrain()
 {
 
 	TArray<int32> tris;
-	TArray<FVector> normals;
+	TArray<FVector> Normals;
 	TArray<FVector2D> uvs;
-	TArray<FProcMeshTangent> tangents;
-	TArray<FLinearColor> vertexColors;
+	TArray<FProcMeshTangent> Tangents;
+	TArray<FLinearColor> VertexColors;
 
 
 	mVertCount = (mDivisions + 1) * (mDivisions + 1);
@@ -120,7 +120,7 @@ void AMeshTest::GenerateTerrain()
 		{
 			mVerts[x * (mDivisions + 1) + y] = FVector(-halfSize + y * divisionSize, 0.0f, halfSize - x * divisionSize);
 			uvs[x * (mDivisions + 1) + y] = FVector2D((float)x / mDivisions, (float)y / mDivisions);
-
+			//UE_LOG(LogTemp, Warning, TEXT("uv[%d]: (%s)"), x * (mDivisions + 1) + y, *uvs[x * (mDivisions + 1) + y].ToString())
 			if (x < mDivisions && y < mDivisions)//don't need triangles when at corners
 			{
 				int topLeft = x * (mDivisions + 1) + y;
@@ -170,12 +170,12 @@ void AMeshTest::GenerateTerrain()
 
 	for (int i = 0; i < mVertCount; i++)
 	{
-		normals.Add(FVector(1, 0, 0));
-		tangents.Add(FProcMeshTangent(0, 1, 0));
-		vertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
+		Normals.Add(FVector(1, 0, 0));
+		Tangents.Add(FProcMeshTangent(0, 1, 0));
+		VertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
 	}
 	
-	mesh->CreateMeshSection_LinearColor(0, mVerts, tris, normals, uvs, vertexColors, tangents, true);
+	mesh->CreateMeshSection_LinearColor(0, mVerts, tris, Normals, uvs, VertexColors, Tangents, true);
 
 	// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);

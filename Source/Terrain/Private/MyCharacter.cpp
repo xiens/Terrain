@@ -44,7 +44,7 @@ void AMyCharacter::BreakGlass()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABreakingGlass::StaticClass(), FoundActors);
 
 	for(ABreakingGlass &BreakingGlass : BreakingGlasses) {
-		BreakingGlass.DestroyQuad();
+		//BreakingGlass.DestroyQuad();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("BreakGlass"))
 }
