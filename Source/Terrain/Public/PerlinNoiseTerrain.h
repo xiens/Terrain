@@ -26,11 +26,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere)
-	int mDivisions = 128; //number of faces
+	int mDivisions = 32; //number of faces
 	UPROPERTY(EditAnywhere)
 	float mSize = 100;
 	UPROPERTY(EditAnywhere)
-	float mHeight = 50;
+	float mHeight = 15;
 
 	//Perlin Noise parameters
 	UPROPERTY(EditAnywhere)
@@ -39,7 +39,7 @@ public:
 	int octaves = 10;
 	float persistance = 1;
 	UPROPERTY(EditAnywhere)
-	float lacunarity = 0.7f;
+	float lacunarity = 0.5f;
 	UPROPERTY(EditAnywhere)
 	FVector2D offset = FVector2D(0, 0);
 	UPROPERTY(EditAnywhere)

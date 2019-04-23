@@ -236,6 +236,7 @@ void ADelaunayTriangulation::GenerateTerrain() {
 
 	//System.Random prng = new System.Random(seed);
 	//TODO use seed 
+	PerlinNoise pn(seed);
 	FVector2D *octaveOffsets = new FVector2D[octaves];
 	for (int octave = 0; octave < octaves; octave++)
 	{
@@ -258,7 +259,7 @@ void ADelaunayTriangulation::GenerateTerrain() {
 			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
 			float yCoord = Vertices[i].Y * scale  * frequency + octaveOffsets[octave].Y;
 
-			PerlinNoise pn(seed);
+
 			//PerlinValue = (FMath::PerlinNoise1D(xCoord) * mHeight + FMath::PerlinNoise1D(yCoord) * mHeight) / 2;
 			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
 			UE_LOG(LogTemp, Warning, TEXT("Perlin value : %f"), PerlinValue)

@@ -7,6 +7,10 @@
 // Sets default values
 APerlinNoiseTerrain::APerlinNoiseTerrain()
 {
+	mesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("PerlinNoiseTerrain"));
+	RootComponent = mesh;
+	// New in UE 4.17, multi-threaded PhysX cooking.
+	mesh->bUseAsyncCooking = true;
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -29,17 +33,18 @@ void APerlinNoiseTerrain::Tick(float DeltaTime)
 void APerlinNoiseTerrain::PostActorCreated()
 {
 	Super::PostActorConstruction();
+	CreateQuad();
+	GenerateTerrain();
 }
 
 void APerlinNoiseTerrain::PostLoad()
 {
 	Super::PostLoad();
-	CreateQuad();
-	GenerateTerrain();
 }
 
 void APerlinNoiseTerrain::CreateQuad()
 {
+
 	Vertices.AddZeroed(mVertCount);
 	UV0.AddZeroed(mVertCount);
 	Triangles.AddZeroed(mDivisions * mDivisions * 6);
@@ -53,7 +58,7 @@ void APerlinNoiseTerrain::CreateQuad()
 	{
 		for (int y = 0; y <= mDivisions; y++)
 		{
-			Vertices[x * (mDivisions + 1) + y] = FVector(-halfSize + y * divisionSize, 0.0f, halfSize - x * divisionSize);
+			Vertices[x * (mDivisions + 1) + y] = FVector(-halfSize + y * divisionSize, halfSize - x * divisionSize, 0.0f);
 			UV0[x * (mDivisions + 1) + y] = FVector2D((float)x / mDivisions, (float)y / mDivisions);
 		
 			if (x < mDivisions && y < mDivisions)//don't need triangles when at corners
@@ -80,14 +85,13 @@ void APerlinNoiseTerrain::CreateQuad()
 		Tangents.Add(FProcMeshTangent(0, 1, 0));
 		VertexColors.Add(FLinearColor(0.75, 0.75, 0.75, 1.0));
 	}
-
 }
 
 void APerlinNoiseTerrain::GenerateTerrain()
 {
 	//System.Random prng = new System.Random(seed);
 	//TODO use seed 
-
+	PerlinNoise pn(seed);
 	FVector2D *octaveOffsets = new FVector2D[octaves];
 	for (int octave = 0; octave < octaves; octave++)
 	{
@@ -96,47 +100,52 @@ void APerlinNoiseTerrain::GenerateTerrain()
 		octaveOffsets[octave] = FVector2D(offsetX, offsetY);
 	}
 
+
 	int j = 0;
 	//PerlinNoise
-	for (int row = 0; row < mDivisions + 1; row++)
+	/*for (int row = 0; row <= mDivisions; row++)
 	{
-		for (int col = 0; col < mDivisions + 1; col++)
+		for (int col = 0; col <= mDivisions; col++)
+		{*/
+	for (int i = 0; i < mVertCount; i++)
+	{
+		float amplitude = 1;
+		float frequency = 1;
+		float noiseHeight = 0;
+		float PerlinValue = 0;
+
+		for (int octave = 0; octave < octaves; octave++)
 		{
-			float amplitude = 1;
-			float frequency = 1;
-			float noiseHeight = 0;
-			float PerlinValue = 0;
+			//float xCoord = (float)row / ((mDivisions + 1) * scale) * frequency + octaveOffsets[octave].X;
+			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
+			//float yCoord = (float)col / ((mDivisions + 1) * scale) * frequency + octaveOffsets[octave].Y;
+			float yCoord = Vertices[i].Y  * scale * frequency + octaveOffsets[octave].Y;
 
-			for (int octave = 0; octave < octaves; octave++)
-			{
-				float xCoord = (float)row / ((mDivisions + 1) * scale) * frequency + octaveOffsets[octave].X;
-				float yCoord = (float)col / ((mDivisions + 1) * scale) * frequency + octaveOffsets[octave].Y;
+			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
 
-				PerlinNoise pn(seed);
-				PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
-
-				noiseHeight += PerlinValue * amplitude;
-				amplitude *= persistance; //decreases each octave
-				frequency *= lacunarity;
-			}
-
-			if (noiseHeight > maxNoiseHeight)
-			{
-				maxNoiseHeight = noiseHeight;
-			}
-			else if (noiseHeight < minNoiseHeight)
-			{
-				minNoiseHeight = noiseHeight;
-			}
-
-			Vertices[j].Z = PerlinValue;
-			j++;
+			noiseHeight += PerlinValue * amplitude;
+			amplitude *= persistance; //decreases each octave
+			frequency *= lacunarity;
 		}
+
+		if (noiseHeight > maxNoiseHeight)
+		{
+			maxNoiseHeight = noiseHeight;
+		}
+		else if (noiseHeight < minNoiseHeight)
+		{
+			minNoiseHeight = noiseHeight;
+		}
+
+		Vertices[j].Z = PerlinValue;
+		j++;
 	}
+	/*	}
+	}*/
 
-	//mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
+	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
 
-	////// Enable collision data
-	//mesh->ContainsPhysicsTriMeshData(true);
+	//// Enable collision data
+	mesh->ContainsPhysicsTriMeshData(true);
 }
 
