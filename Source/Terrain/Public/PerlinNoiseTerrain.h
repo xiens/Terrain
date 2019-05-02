@@ -29,20 +29,21 @@ public:
 	int mDivisions = 32; //number of faces
 	UPROPERTY(EditAnywhere)
 	float mSize = 100;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", UIMin = "0.0"))
 	float mHeight = 15;
 
 	//Perlin Noise parameters
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	float scale = 20.0f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	int octaves = 10;
-	float persistance = 1;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Noise parameters", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float persistance = 1; //Should be from 0 to 1
+	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	float lacunarity = 0.5f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	FVector2D offset = FVector2D(0, 0);
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	int seed = 5;
 
 private:

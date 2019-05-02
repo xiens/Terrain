@@ -23,7 +23,6 @@ ADelaunayTriangulation::ADelaunayTriangulation()
 void ADelaunayTriangulation::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // This is called when actor is spawned
@@ -143,71 +142,59 @@ void ADelaunayTriangulation::CreateQuad() {
 
 	if (Points < 5) return;
 
-	//srand(36341);
+	//Create the corners of quad
 	cloud[0] = Point2(-0.5f*Width, -0.5f*Height);
 	cloud[1] = Point2(0.5f*Width, -0.5f*Height);
 	cloud[3] = Point2(-0.5f*Width, 0.5f*Height);
 	cloud[2] = Point2(0.5f*Width, 0.5f*Height);
 	cloud[4] = Point2(-0.5f*Width, -0.501f*Height);
 
-	// gen some random input
+	//gen some random input
 	for (int i = 5; i < Points; i++)
 	{
 		cloud[i].x = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
 		cloud[i].y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);
 	}
 
+	//Use the 2D Delaunay Triangulation on the generated points
 	IDelaBella* idb = IDelaBella::Create();
-	//int verts = idb->Triangulate(POINTS, &cloud->x, &cloud->y, sizeof(Point2));
 	int verts = idb->Triangulate(Points, &cloud->x, &cloud->y, sizeof(Point2));
 
 	std::vector<DelaBella_Triangle> triangles;
 	std::vector<DelaBella_Vertex> triangleVertices;  //All unique vertices of triangles
 
-	UE_LOG(LogTemp, Warning, TEXT("number of vertices: %d"), verts)
-		//if positive, all ok 
-		if (verts > 0)
+	if (verts > 0)
+	{
+		int TrianglesNum = verts / 3;
+		const DelaBella_Triangle* dela = idb->GetFirstDelaunayTriangle();
+
+		for (int i = 0; i < TrianglesNum; i++)
 		{
-			int Triangles = verts / 3;
-			const DelaBella_Triangle* dela = idb->GetFirstDelaunayTriangle();
+			UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
+				, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)
 
-			for (int i = 0; i < Triangles; i++)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
-					, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)
-
-					triangles.push_back(*dela);
-				dela = dela->next;
-			}
+			triangles.push_back(*dela);
+			dela = dela->next;
 		}
-		else
-		{
-			// no points given or all points are colinear
-			UE_LOG(LogTemp, Warning, TEXT("no points given or all points are colinear"))
-		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("no points given or all points are colinear"))
+	}
 
-
-	//Calculate triangle indices
-	std::vector<int> triangleIndices;
-
-	triangleIndices = CalculateTriangleIndices(triangles, triangleVertices);
-
+	 std::vector<int> triangleIndices = CalculateTriangleIndices(triangles, triangleVertices);
 
 	for (int i = 0; i < triangleIndices.size(); i++)
 	{
 		Triangles.Add(triangleIndices[i]);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("number of triangle vertices: %d"), triangleVertices.size())
-		UE_LOG(LogTemp, Warning, TEXT("number of vertices: %d"), verts)
-
-		UV0.AddZeroed(triangleVertices.size());
+	UV0.AddZeroed(triangleVertices.size());
 
 	for (int i = 0; i < triangleVertices.size(); i++)
 	{
 		Vertices.Add(FVector(triangleVertices[i].x, triangleVertices[i].y, 0));
 		Normals.Add(FVector(1, 0, 0));
-		float mid = (Width + Height) / 2.0f;
+		//float mid = (Width + Height) / 2.0f;
 		//UV0.Add(FVector2D(i*(mid /100.0f)/triangleVertices.size(), i*(mid / 100.0f)/triangleVertices.size()));
 		//UE_LOG(LogTemp, Warning, TEXT("uv: (%s)"), *UV0[i].ToString())
 
@@ -232,7 +219,6 @@ void ADelaunayTriangulation::CreateQuad() {
 }
 
 void ADelaunayTriangulation::GenerateTerrain() {
-
 
 	//System.Random prng = new System.Random(seed);
 	//TODO use seed 
@@ -259,10 +245,7 @@ void ADelaunayTriangulation::GenerateTerrain() {
 			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
 			float yCoord = Vertices[i].Y * scale  * frequency + octaveOffsets[octave].Y;
 
-
-			//PerlinValue = (FMath::PerlinNoise1D(xCoord) * mHeight + FMath::PerlinNoise1D(yCoord) * mHeight) / 2;
 			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
-			UE_LOG(LogTemp, Warning, TEXT("Perlin value : %f"), PerlinValue)
 			noiseHeight += PerlinValue * amplitude;
 			amplitude *= persistance; //decreases each octave
 			frequency *= lacunarity;
@@ -280,7 +263,6 @@ void ADelaunayTriangulation::GenerateTerrain() {
 		Vertices[j].Z = PerlinValue;
 		j++;
 	}
-
 
 	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
 

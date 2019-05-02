@@ -20,14 +20,56 @@ APerlinNoiseTerrain::APerlinNoiseTerrain()
 void APerlinNoiseTerrain::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void APerlinNoiseTerrain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+//	PerlinNoise pn(seed);
+//	FVector2D *octaveOffsets = new FVector2D[octaves];
+//	for (int octave = 0; octave < octaves; octave++)
+//	{
+//		float offsetX = FMath::FRandRange(-100000, 100000) + offset.X;
+//		float offsetY = FMath::FRandRange(-100000, 100000) + offset.Y;
+//		octaveOffsets[octave] = FVector2D(offsetX, offsetY);
+//	}
+//
+//	int j = 0; //height index
+//
+//	for (int i = 0; i < mVertCount; i++)
+//	{
+//		float amplitude = 1;
+//		float frequency = 1;
+//		float noiseHeight = 0;
+//		float PerlinValue = 0;
+//
+//		for (int octave = 0; octave < octaves; octave++)
+//		{
+//			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
+//			float yCoord = Vertices[i].Y  * scale * frequency + octaveOffsets[octave].Y;
+//
+//			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
+//
+//			noiseHeight += PerlinValue * amplitude;
+//			amplitude *= persistance; //decreases each octave
+//			frequency *= lacunarity;
+//		}
+//
+//		if (noiseHeight > maxNoiseHeight)
+//		{
+//			maxNoiseHeight = noiseHeight;
+//		}
+//		else if (noiseHeight < minNoiseHeight)
+//		{
+//			minNoiseHeight = noiseHeight;
+//		}
+//
+//		Vertices[j].Z = PerlinValue;
+//		j++;
+//	}
+//
+//	mesh->UpdateMeshSection_LinearColor(0, Vertices, Normals, UV0, VertexColors, Tangents);
 }
 
 void APerlinNoiseTerrain::PostActorCreated()
@@ -44,7 +86,6 @@ void APerlinNoiseTerrain::PostLoad()
 
 void APerlinNoiseTerrain::CreateQuad()
 {
-
 	Vertices.AddZeroed(mVertCount);
 	UV0.AddZeroed(mVertCount);
 	Triangles.AddZeroed(mDivisions * mDivisions * 6);
@@ -100,13 +141,8 @@ void APerlinNoiseTerrain::GenerateTerrain()
 		octaveOffsets[octave] = FVector2D(offsetX, offsetY);
 	}
 
+	int j = 0; //height index
 
-	int j = 0;
-	//PerlinNoise
-	/*for (int row = 0; row <= mDivisions; row++)
-	{
-		for (int col = 0; col <= mDivisions; col++)
-		{*/
 	for (int i = 0; i < mVertCount; i++)
 	{
 		float amplitude = 1;
@@ -116,9 +152,7 @@ void APerlinNoiseTerrain::GenerateTerrain()
 
 		for (int octave = 0; octave < octaves; octave++)
 		{
-			//float xCoord = (float)row / ((mDivisions + 1) * scale) * frequency + octaveOffsets[octave].X;
 			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
-			//float yCoord = (float)col / ((mDivisions + 1) * scale) * frequency + octaveOffsets[octave].Y;
 			float yCoord = Vertices[i].Y  * scale * frequency + octaveOffsets[octave].Y;
 
 			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
@@ -140,9 +174,7 @@ void APerlinNoiseTerrain::GenerateTerrain()
 		Vertices[j].Z = PerlinValue;
 		j++;
 	}
-	/*	}
-	}*/
-
+	
 	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
 
 	//// Enable collision data
