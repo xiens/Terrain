@@ -31,7 +31,7 @@ public:
 
 	//Terrain parameters
 	UPROPERTY(EditAnywhere)
-	float mHeight = 20;
+	float mHeight = 35;
 	//float size = 5;
 	//int gridSize = 10;
 	float maxNoiseHeight = 10000;

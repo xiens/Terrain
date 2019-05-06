@@ -12,11 +12,13 @@ MeshData::~MeshData()
 {
 }
 
-MeshData::MeshData(int mVertCount)
+MeshData::MeshData(int mDivisions)
 {
+	int mVertCount = (mDivisions + 1)*(mDivisions + 1);
+
 	Vertices.AddZeroed(mVertCount);
 	UV0.AddZeroed(mVertCount);
-	Triangles.AddZeroed((mVertCount - 1) * (mVertCount - 1) * 6);
+	Triangles.AddZeroed(mDivisions * mDivisions * 6);
 
 	for (int i = 0; i < mVertCount; i++)
 	{

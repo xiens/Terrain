@@ -28,7 +28,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere)
-	int mDivisions = 32; //number of faces
+	int mDivisions = 16; //number of faces
 	UPROPERTY(EditAnywhere)
 	float mSize = 100;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", UIMin = "0.0"))
@@ -60,16 +60,7 @@ private:
 	MeshGenerator * meshGenerator = NULL;
 	MeshData * meshData = NULL;
 
-	TArray<FVector> Vertices;
-	TArray<int32> Triangles;
-	TArray<FVector> Normals;
-	TArray<FVector2D> UV0;
-	TArray<FProcMeshTangent> Tangents;
-	TArray<FLinearColor> VertexColors;
-
-	void TestMesh();
 	void PostActorCreated();
 	void PostLoad();
-	void CreateQuad();
 	void GenerateTerrain();
 };

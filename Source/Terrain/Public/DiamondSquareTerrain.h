@@ -7,6 +7,9 @@
 #include "ProceduralMeshComponent.h"
 #include "DiamondSquareTerrain.generated.h"
 
+class MeshGenerator;
+class MeshData;
+
 UCLASS()
 class TERRAIN_API ADiamondSquareTerrain : public AActor
 {
@@ -24,25 +27,25 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere)
-		int mDivisions = 128; //number of faces
+	int mDivisions = 64; //number of faces
 	UPROPERTY(EditAnywhere)
-		float mSize = 100;
+	float mSize = 100;
 	UPROPERTY(EditAnywhere)
-		float mHeight = 50;
-
-
+	float mHeight = 25;
 
 private:
 	UPROPERTY(VisibleAnywhere)
 	UProceduralMeshComponent * mesh;
 
+	//Mesh components
+	MeshGenerator * meshGenerator = NULL;
+	MeshData * meshData = NULL;
+
 	void PostActorCreated();
 	void PostLoad();
-	void CreateQuad();
 	void GenerateTerrain();
 	void DiamondSquare(int row, int col, int size, float offset);
 
-	TArray<FVector> Vertices;
 	int mVertCount = (mDivisions + 1) * (mDivisions + 1);
 
 };

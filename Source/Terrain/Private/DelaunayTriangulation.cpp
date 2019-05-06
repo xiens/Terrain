@@ -28,16 +28,14 @@ void ADelaunayTriangulation::BeginPlay()
 // This is called when actor is spawned
 void ADelaunayTriangulation::PostActorCreated() {
 	Super::PostActorConstruction();
-	UE_LOG(LogTemp, Warning, TEXT("PostActorConstruction"))
-	//CreateQuad();
-	//GenerateTerrain();
+	CreateQuad();
+	GenerateTerrain();
 }
 
 // This is called when actor is already in level and map is opened
 void ADelaunayTriangulation::PostLoad() {
 	Super::PostLoad();
-	CreateQuad();
-	GenerateTerrain();
+
 }
 
 // Called every frame

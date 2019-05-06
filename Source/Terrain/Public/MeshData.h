@@ -24,7 +24,7 @@ public:
 
 	int triangleIndex;
 
-	MeshData(int mVertCount);
+	MeshData(int mDivisions);
 
 	void AddTriangle(int a, int b, int c);
 

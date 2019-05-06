@@ -15,5 +15,5 @@ public:
 	~MeshGenerator();
 	MeshData * meshData = NULL;
 
-	MeshData * GenerateMesh(int mVertCount, int mSize);
+	MeshData * GenerateMesh(int mDivisions, int mSize);
 };

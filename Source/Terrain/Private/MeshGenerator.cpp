@@ -14,7 +14,7 @@ MeshGenerator::~MeshGenerator()
 
 MeshData * MeshGenerator::GenerateMesh(int mDivisions, int mSize)
 {
-	meshData = new MeshData((mDivisions+1)*(mDivisions+1));
+	meshData = new MeshData(mDivisions);
 
 	float halfSize = mSize * 0.5f;
 	float divisionSize = mSize / mDivisions;
