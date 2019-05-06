@@ -3,6 +3,8 @@
 
 #include "Public/PerlinNoiseTerrain.h"
 #include "Public/PerlinNoise.h"
+#include "Public/MeshGenerator.h"
+#include "Public/MeshData.h"
 
 // Sets default values
 APerlinNoiseTerrain::APerlinNoiseTerrain()
@@ -14,69 +16,31 @@ APerlinNoiseTerrain::APerlinNoiseTerrain()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	meshGenerator = new MeshGenerator();
+	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
+
 }
 
 // Called when the game starts or when spawned
 void APerlinNoiseTerrain::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TestMesh();
 }
 
 // Called every frame
 void APerlinNoiseTerrain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-//	PerlinNoise pn(seed);
-//	FVector2D *octaveOffsets = new FVector2D[octaves];
-//	for (int octave = 0; octave < octaves; octave++)
-//	{
-//		float offsetX = FMath::FRandRange(-100000, 100000) + offset.X;
-//		float offsetY = FMath::FRandRange(-100000, 100000) + offset.Y;
-//		octaveOffsets[octave] = FVector2D(offsetX, offsetY);
-//	}
-//
-//	int j = 0; //height index
-//
-//	for (int i = 0; i < mVertCount; i++)
-//	{
-//		float amplitude = 1;
-//		float frequency = 1;
-//		float noiseHeight = 0;
-//		float PerlinValue = 0;
-//
-//		for (int octave = 0; octave < octaves; octave++)
-//		{
-//			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
-//			float yCoord = Vertices[i].Y  * scale * frequency + octaveOffsets[octave].Y;
-//
-//			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
-//
-//			noiseHeight += PerlinValue * amplitude;
-//			amplitude *= persistance; //decreases each octave
-//			frequency *= lacunarity;
-//		}
-//
-//		if (noiseHeight > maxNoiseHeight)
-//		{
-//			maxNoiseHeight = noiseHeight;
-//		}
-//		else if (noiseHeight < minNoiseHeight)
-//		{
-//			minNoiseHeight = noiseHeight;
-//		}
-//
-//		Vertices[j].Z = PerlinValue;
-//		j++;
-//	}
-//
-//	mesh->UpdateMeshSection_LinearColor(0, Vertices, Normals, UV0, VertexColors, Tangents);
 }
 
 void APerlinNoiseTerrain::PostActorCreated()
 {
 	Super::PostActorConstruction();
-	CreateQuad();
-	GenerateTerrain();
+	
+	/*CreateQuad();
+	GenerateTerrain();*/
 }
 
 void APerlinNoiseTerrain::PostLoad()
@@ -84,6 +48,12 @@ void APerlinNoiseTerrain::PostLoad()
 	Super::PostLoad();
 }
 
+void APerlinNoiseTerrain::TestMesh() {
+	for (size_t i = 0; i < mVertCount; i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("meshdata: %f"), meshData->Vertices[i].X)
+	}
+}
 void APerlinNoiseTerrain::CreateQuad()
 {
 	Vertices.AddZeroed(mVertCount);
@@ -130,8 +100,7 @@ void APerlinNoiseTerrain::CreateQuad()
 
 void APerlinNoiseTerrain::GenerateTerrain()
 {
-	//System.Random prng = new System.Random(seed);
-	//TODO use seed 
+
 	PerlinNoise pn(seed);
 	FVector2D *octaveOffsets = new FVector2D[octaves];
 	for (int octave = 0; octave < octaves; octave++)

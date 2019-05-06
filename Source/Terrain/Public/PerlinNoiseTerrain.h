@@ -8,6 +8,8 @@
 #include "PerlinNoiseTerrain.generated.h"
 
 class PerlinNoise;
+class MeshGenerator;
+class MeshData;
 
 UCLASS()
 class TERRAIN_API APerlinNoiseTerrain : public AActor
@@ -55,6 +57,9 @@ private:
 	float minNoiseHeight = -10000;
 
 	//Mesh components
+	MeshGenerator * meshGenerator = NULL;
+	MeshData * meshData = NULL;
+
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
 	TArray<FVector> Normals;
@@ -62,7 +67,7 @@ private:
 	TArray<FProcMeshTangent> Tangents;
 	TArray<FLinearColor> VertexColors;
 
-
+	void TestMesh();
 	void PostActorCreated();
 	void PostLoad();
 	void CreateQuad();
