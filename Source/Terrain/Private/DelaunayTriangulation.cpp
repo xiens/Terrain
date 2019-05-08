@@ -18,15 +18,12 @@ ADelaunayTriangulation::ADelaunayTriangulation()
 	// New in UE 4.17, multi-threaded PhysX cooking.
 	mesh->bUseAsyncCooking = true;
 
-	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_AssetPlatform.M_AssetPlatform'"));
 	if (ConcreteMaterialAsset.Succeeded())
 	{
 		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
 		mesh->SetMaterial(0, MaterialInstance);
 	}
-
-
-	
 
 }
 
@@ -39,9 +36,14 @@ void ADelaunayTriangulation::BeginPlay()
 // This is called when actor is spawned
 void ADelaunayTriangulation::PostActorCreated() {
 	Super::PostActorConstruction();
+	double start = FPlatformTime::Seconds();
 	CreateQuad();
 	GenerateTerrain();
+	double end = FPlatformTime::Seconds();
+	double TimeElapsed = end - start;
+	//UE_LOG(LogActor, Warning, TEXT("Tick Timer: %.6f Start: %.6f"), end - start, start);
 
+	UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain generation time: %f"), TimeElapsed);
 
 }
 
@@ -181,8 +183,8 @@ void ADelaunayTriangulation::CreateQuad() {
 
 		for (int i = 0; i < TrianglesNum; i++)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
-				, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)
+			//UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
+				//, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)
 
 			triangles.push_back(*dela);
 			dela = dela->next;
@@ -221,7 +223,7 @@ void ADelaunayTriangulation::CreateQuad() {
 		}
 	}
 	for (size_t i = 0; i < triangleVertices.size(); i++) {
-		UE_LOG(LogTemp, Warning, TEXT("uv: (%s)"), *UV0[i].ToString())
+		//UE_LOG(LogTemp, Warning, TEXT("uv: (%s)"), *UV0[i].ToString())
 	}
 
 

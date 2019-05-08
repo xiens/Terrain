@@ -8,6 +8,7 @@
 #include "CoreUObject/Public/UObject/ConstructorHelpers.h"
 #include "CoreUObject/Public/UObject/Class.h"
 #include "Classes/Materials/MaterialInstanceDynamic.h"
+#include "GameFramework/PlayerController.h"
 
 // Sets default values
 APerlinNoiseTerrain::APerlinNoiseTerrain()
@@ -28,12 +29,20 @@ APerlinNoiseTerrain::APerlinNoiseTerrain()
 		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
 		mesh->SetMaterial(0, MaterialInstance);
 	}
+	mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
 }
 
 // Called when the game starts or when spawned
 void APerlinNoiseTerrain::BeginPlay()
 {
 	Super::BeginPlay();
+	double start = FPlatformTime::Seconds();
+	GenerateTerrain();
+	double end = FPlatformTime::Seconds();
+	double TimeElapsed = end - start;
+	//UE_LOG(LogActor, Warning, TEXT("Tick Timer: %.6f Start: %.6f"), end - start, start);
+
+	UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain generation time: %f"), TimeElapsed + meshGenerator->MeshGenerationTime);
 }
 
 // Called every frame
@@ -45,13 +54,14 @@ void APerlinNoiseTerrain::Tick(float DeltaTime)
 void APerlinNoiseTerrain::PostActorCreated()
 {
 	Super::PostActorConstruction();
-	
-	GenerateTerrain();
+
+
 }
 
 void APerlinNoiseTerrain::PostLoad()
 {
 	Super::PostLoad();
+
 }
 
 void APerlinNoiseTerrain::GenerateTerrain()

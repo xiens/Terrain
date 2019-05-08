@@ -13,6 +13,9 @@ class TERRAIN_API MeshGenerator
 public:
 	MeshGenerator();
 	~MeshGenerator();
+
+	double MeshGenerationTime = 0;
+
 	MeshData * meshData = NULL;
 
 	MeshData * GenerateMesh(int mDivisions, int mSize);

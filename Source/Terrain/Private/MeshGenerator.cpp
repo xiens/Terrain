@@ -14,6 +14,8 @@ MeshGenerator::~MeshGenerator()
 
 MeshData * MeshGenerator::GenerateMesh(int mDivisions, int mSize)
 {
+	double start = FPlatformTime::Seconds();
+
 	meshData = new MeshData(mDivisions);
 
 	float halfSize = mSize * 0.5f;
@@ -48,5 +50,11 @@ MeshData * MeshGenerator::GenerateMesh(int mDivisions, int mSize)
 			}
 		}
 	}
+
+	double end = FPlatformTime::Seconds();
+	MeshGenerationTime = end - start;
+
+	//UE_LOG(LogTemp, Warning, TEXT("Mesh generation time: %f"), MeshGenerationTime);
+
 	return meshData;
 }

@@ -58,8 +58,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	int Points = 900; //AT LEAST 20
 
-	float Width = 200.0f;
-	float Height = 200.0f;
+	float Width = 500.0f;
+	float Height = 500.0f;
 
 	int triangleInd = 0;
 

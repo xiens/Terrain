@@ -25,6 +25,9 @@ ADiamondSquareTerrain::ADiamondSquareTerrain()
 		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
 		mesh->SetMaterial(0, MaterialInstance);
 	}
+
+	mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
+
 }
 
 // Called when the game starts or when spawned
@@ -44,7 +47,13 @@ void ADiamondSquareTerrain::Tick(float DeltaTime)
 void ADiamondSquareTerrain::PostActorCreated()
 {
 	Super::PostActorCreated();
+	double start = FPlatformTime::Seconds();
 	GenerateTerrain();
+	double end = FPlatformTime::Seconds();
+	double TimeElapsed = end - start;
+	//UE_LOG(LogActor, Warning, TEXT("Tick Timer: %.6f Start: %.6f"), end - start, start);
+
+	UE_LOG(LogTemp, Warning, TEXT("Diamond Square Terrain generation time: %f"), TimeElapsed + meshGenerator->MeshGenerationTime);
 }
 
 void ADiamondSquareTerrain::PostLoad()
