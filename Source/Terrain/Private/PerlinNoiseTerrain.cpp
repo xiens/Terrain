@@ -43,6 +43,7 @@ void APerlinNoiseTerrain::BeginPlay()
 	//UE_LOG(LogActor, Warning, TEXT("Tick Timer: %.6f Start: %.6f"), end - start, start);
 
 	UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain generation time: %f"), TimeElapsed + meshGenerator->MeshGenerationTime);
+	//TODO Generate bigger terrain with more vertices and measure time for each generation
 }
 
 // Called every frame
