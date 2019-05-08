@@ -7,6 +7,7 @@
 #include "Public/PerlinNoise.h"
 #include "CoreUObject/Public/UObject/ConstructorHelpers.h"
 #include "CoreUObject/Public/UObject/Class.h"
+#include "Classes/Materials/MaterialInstanceDynamic.h"
 
 
 // Sets default values
@@ -16,6 +17,16 @@ ADelaunayTriangulation::ADelaunayTriangulation()
 	RootComponent = mesh;
 	// New in UE 4.17, multi-threaded PhysX cooking.
 	mesh->bUseAsyncCooking = true;
+
+	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
+	if (ConcreteMaterialAsset.Succeeded())
+	{
+		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
+		mesh->SetMaterial(0, MaterialInstance);
+	}
+
+
+	
 
 }
 
@@ -30,6 +41,8 @@ void ADelaunayTriangulation::PostActorCreated() {
 	Super::PostActorConstruction();
 	CreateQuad();
 	GenerateTerrain();
+
+
 }
 
 // This is called when actor is already in level and map is opened

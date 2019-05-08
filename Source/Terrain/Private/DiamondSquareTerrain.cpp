@@ -4,6 +4,9 @@
 #include "Public/DiamondSquareTerrain.h"
 #include "Public/MeshGenerator.h"
 #include "Public/MeshData.h"
+#include "CoreUObject/Public/UObject/ConstructorHelpers.h"
+#include "CoreUObject/Public/UObject/Class.h"
+#include "Classes/Materials/MaterialInstanceDynamic.h"
 
 // Sets default values
 ADiamondSquareTerrain::ADiamondSquareTerrain()
@@ -15,6 +18,13 @@ ADiamondSquareTerrain::ADiamondSquareTerrain()
 
 	meshGenerator = new MeshGenerator();
 	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
+
+	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
+	if (ConcreteMaterialAsset.Succeeded())
+	{
+		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
+		mesh->SetMaterial(0, MaterialInstance);
+	}
 }
 
 // Called when the game starts or when spawned
