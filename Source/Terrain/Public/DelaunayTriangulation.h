@@ -56,7 +56,7 @@ private:
 	UProceduralMeshComponent * mesh;
 
 	UPROPERTY(EditAnywhere)
-	int Points = 900; //AT LEAST 20
+	int Points = 4225; //AT LEAST 20
 
 	float Width = 500.0f;
 	float Height = 500.0f;

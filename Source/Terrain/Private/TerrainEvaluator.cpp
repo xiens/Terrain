@@ -2,9 +2,14 @@
 
 
 #include "Public/TerrainEvaluator.h"
-#include "Engine/Public/TimerManager.h"
+#include "PerlinNoiseTerrain.h"
+#include "Engine/Classes/Components/ActorComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Actor.h"
 #include "Engine/World.h"
-//#include "GameFramework/Actor.h"
+
+
+
 
 TerrainEvaluator::TerrainEvaluator()
 {
@@ -14,8 +19,11 @@ TerrainEvaluator::~TerrainEvaluator()
 {
 }
 
-void TerrainEvaluator::SampleTimerExpired() {
-	bTimerExpired = true;
+void TerrainEvaluator::SpawnTerrainActors() {
+
+	UClass* PerlinNoiseTerrain = APerlinNoiseTerrain::StaticClass();
+	//UWorld world = GetWorld();
+	//GetWorld()->SpawnActor<APerlinNoiseTerrain>(GetClass(), FVector(0.0f, 0.f, 0.f), FRotator(0.0f, 0.f, 0.f), FActorSpawnParameters());
 }
 
 void TerrainEvaluator::ToggleTimer()

@@ -28,7 +28,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere)
-	int mDivisions = 16; //number of faces
+	int mDivisions = 64; //number of faces
 	UPROPERTY(EditAnywhere)
 	float mSize = 100;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", UIMin = "0.0"))
@@ -42,11 +42,16 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Noise parameters", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float persistance = 1; //Should be from 0 to 1
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")
-	float lacunarity = 0.5f;
+	float lacunarity = 2.0f;
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	FVector2D offset = FVector2D(0, 0);
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	int seed = 5;
+
+	void SetTerrainParameters(int mDivisions, float mSize, float mHeight, float lacunarity, float scale);
+
+	void GenerateTerrain();
+	void GenerateTerrain2(float Height, float Lacunarity, float Scale, float Persistance);
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -62,5 +67,6 @@ private:
 
 	void PostActorCreated();
 	void PostLoad();
-	void GenerateTerrain();
+	
+
 };

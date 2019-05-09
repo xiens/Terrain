@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 
+class APerlinNoiseTerrain;
 /**
  * 
  */
@@ -27,5 +28,5 @@ private:
 	void ToggleTimer();
 
 	//UFUNCTION()
-	void SampleTimerExpired();
+	void SpawnTerrainActors();
 };

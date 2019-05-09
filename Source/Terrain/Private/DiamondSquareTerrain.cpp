@@ -89,7 +89,45 @@ void ADiamondSquareTerrain::GenerateTerrain()
 		}
 		numSquares *= 2;
 		squareSize /= 2;
-		mHeight *= 0.5f;//u can change this parameter
+		mHeight *= roughness;//u can change this parameter
+	}
+
+	mesh->CreateMeshSection_LinearColor(0, meshData->Vertices, meshData->Triangles, meshData->Normals,
+		meshData->UV0, meshData->VertexColors, meshData->Tangents, true);
+
+	// Enable collision data
+	mesh->ContainsPhysicsTriMeshData(true);
+}
+
+void ADiamondSquareTerrain::GenerateTerrain2(float mDivisions, float mHeight, float roughness)
+{
+	//DiamondSquare initializing corners
+	meshData->Vertices[0].Z = FMath::FRandRange(-mHeight, mHeight);
+	meshData->Vertices[mDivisions].Z = FMath::FRandRange(-mHeight, mHeight);
+	meshData->Vertices[mVertCount - 1].Z = FMath::FRandRange(-mHeight, mHeight);
+	meshData->Vertices[mVertCount - 1 - mDivisions].Z = FMath::FRandRange(-mHeight, mHeight);
+
+	int iterations = (int)FMath::LogX(2, mDivisions); //changed from log
+	int numSquares = 1;
+	int squareSize = mDivisions;
+
+	for (int i = 0; i < iterations; i++)
+	{
+		int row = 0;
+		for (int j = 0; j < numSquares; j++)
+		{
+			int col = 0;
+			for (int k = 0; k < numSquares; k++)
+			{
+				DiamondSquare(row, col, squareSize, mHeight);
+				col += squareSize;
+
+			}
+			row += squareSize;
+		}
+		numSquares *= 2;
+		squareSize /= 2;
+		mHeight *= roughness;//u can change this parameter
 	}
 
 	mesh->CreateMeshSection_LinearColor(0, meshData->Vertices, meshData->Triangles, meshData->Normals,

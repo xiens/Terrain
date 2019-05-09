@@ -32,7 +32,10 @@ public:
 	float mSize = 100;
 	UPROPERTY(EditAnywhere)
 	float mHeight = 25;
+	UPROPERTY(EditAnywhere)
+	float roughness = 0.4;
 
+	void GenerateTerrain2(float mDivisions, float mHeight, float roughness);
 private:
 	UPROPERTY(VisibleAnywhere)
 	UProceduralMeshComponent * mesh;

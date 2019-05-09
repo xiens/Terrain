@@ -172,6 +172,7 @@ void ADelaunayTriangulation::CreateQuad() {
 	//Use the 2D Delaunay Triangulation on the generated points
 	IDelaBella* idb = IDelaBella::Create();
 	int verts = idb->Triangulate(Points, &cloud->x, &cloud->y, sizeof(Point2));
+	UE_LOG(LogTemp, Warning, TEXT("number of triangulation vertices: %d"), verts)
 
 	std::vector<DelaBella_Triangle> triangles;
 	std::vector<DelaBella_Vertex> triangleVertices;  //All unique vertices of triangles
