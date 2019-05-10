@@ -2,7 +2,9 @@
 
 
 #include "Public/DelaunayTriangulation.h"
-#include "Public\Point2.h"
+#include "Public/Point2.h"
+#include "Public/MeshGenerator.h"
+#include "Public/MeshData.h"
 #include <vector>
 #include "Public/PerlinNoise.h"
 #include "CoreUObject/Public/UObject/ConstructorHelpers.h"
@@ -25,6 +27,8 @@ ADelaunayTriangulation::ADelaunayTriangulation()
 		mesh->SetMaterial(0, MaterialInstance);
 	}
 
+	meshGenerator = new MeshGenerator();
+	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
 }
 
 // Called when the game starts or when spawned
@@ -36,14 +40,14 @@ void ADelaunayTriangulation::BeginPlay()
 // This is called when actor is spawned
 void ADelaunayTriangulation::PostActorCreated() {
 	Super::PostActorConstruction();
-	double start = FPlatformTime::Seconds();
+	/*double start = FPlatformTime::Seconds();
 	CreateQuad();
 	GenerateTerrain();
 	double end = FPlatformTime::Seconds();
-	double TimeElapsed = end - start;
-	//UE_LOG(LogActor, Warning, TEXT("Tick Timer: %.6f Start: %.6f"), end - start, start);
+	double TimeElapsed = end - start;*/
 
-	UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain generation time: %f"), TimeElapsed);
+	//UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain generation time: %f"), TimeElapsed);
+	TestDelaunay3D();
 
 }
 
@@ -282,5 +286,144 @@ void ADelaunayTriangulation::GenerateTerrain() {
 
 	//// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
+}
+
+void ADelaunayTriangulation::TestDelaunay3D()
+{
+	//Generate terrain vertices using perlin noise
+	GenerateTerrainForTriangulation(); 
+
+	std::vector<double> verts;
+	
+	verts.reserve(meshData->Vertices.Num()*3);
+
+	for (auto &v : meshData->Vertices) {
+
+		v.X /= 100.0f;
+		v.Y /= 100.0f;
+		v.Z /= 100.0f;
+		UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), v.X, v.Y, v.Z)
+	}
+
+	int cnt = 0;
+	for (auto &v : meshData->Vertices) {
+		verts.push_back(v.X);
+		verts.push_back(v.Y);
+		verts.push_back(v.Z);
+		cnt += 3;
+	}
+
+	for (size_t i = 0; i < verts.size(); i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%f"), verts[i])
+
+	}
+	UE_LOG(LogTemp, Warning, TEXT("cnt %d"), cnt)
+	UE_LOG(LogTemp, Warning, TEXT("num of verts %d"), verts.size())
+	//Call Simple Delaunay for the specific number of dimensions (<3>)
+	//std::vector<int> connectivity = SimpleDelaunay::compute<3>(verts);
+
+	int size = verts.size() / 3;
+	// Array here as non-vector container
+	std::vector<int> indices;
+	indices.reserve(size);
+	int count = 0;
+	for (size_t i = 0; i < size; i++) {
+		indices.push_back(count);
+		count++;
+	}
+
+	// Call Simple Delaunay with pointers and sizes
+	//DOESNT WORK FOR MDIVISIONS >= 30
+	//works for 63 ??  oO
+	//unpredictable
+	std::vector<int> connectivity = SimpleDelaunay::compute<3>(&verts[0], verts.size(), &indices[0], size);
+
+	//// Input: vector with the point coordinates in 3 dimensions
+	//std::vector<double> points = { 0.75816742, 0.24371858, 0.92870883,
+	//							   0.12689219, 0.06034812, 0.53746581,
+	//							   0.88915805, 0.24796188, 0.27345906,
+	//							   0.91783859, 0.69470075, 0.28810121,
+	//							   0.23865371, 0.70646204, 0.07248404,
+	//							   0.55374917, 0.52939551, 0.81973793,
+	//							   0.81546199, 0.37344253, 0.96196011,
+	//							   0.61142366, 0.11634092, 0.10327177,
+	//							   0.92806606, 0.04172719, 0.33958352,
+	//							   0.62684985, 0.6717684 , 0.81939159 };
+
+	//std::vector<int> connectivity2 = SimpleDelaunay::compute<3>(points);
+
+	for (size_t i = 0; i < connectivity.size(); i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%d"), connectivity[i])
+
+	}
+
+		/* The solution looks like:
+
+			2, 3, 9, 6,
+			2, 3, 8, 6,
+			2, 5, 9, 6,
+			1, 2, 5, 0,
+			1, 2, 8, 0,
+			2, 6, 8, 0,
+			2, 5, 6, 0,
+			2, 4, 7, 5,
+			2, 3, 9, 5,
+			2, 3, 4, 5,
+			3, 4, 9, 5,
+			1, 4, 7, 5,
+			1, 4, 9, 5,
+			1, 2, 7, 5,
+			1, 7, 8, 2,
+			3, 4, 7, 2
+		*/
+
+}
+
+void ADelaunayTriangulation::GenerateTerrainForTriangulation()
+{
+	PerlinNoise pn(seed);
+	FVector2D *octaveOffsets = new FVector2D[octaves];
+	for (int octave = 0; octave < octaves; octave++)
+	{
+		float offsetX = FMath::FRandRange(-100000, 100000) + offset.X;
+		float offsetY = FMath::FRandRange(-100000, 100000) + offset.Y;
+		octaveOffsets[octave] = FVector2D(offsetX, offsetY);
+	}
+
+	int j = 0; //height index
+
+	for (int i = 0; i < mVertCount; i++)
+	{
+		float amplitude = 1;
+		float frequency = 1;
+		float noiseHeight = 0;
+		float PerlinValue = 0;
+
+		for (int octave = 0; octave < octaves; octave++)
+		{
+			float xCoord = meshData->Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
+			float yCoord = meshData->Vertices[i].Y  * scale * frequency + octaveOffsets[octave].Y;
+
+			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
+
+			noiseHeight += PerlinValue * amplitude;
+			amplitude *= persistance; //decreases each octave
+			frequency *= lacunarity;
+		}
+
+		if (noiseHeight > maxNoiseHeight)
+		{
+			maxNoiseHeight = noiseHeight;
+		}
+		else if (noiseHeight < minNoiseHeight)
+		{
+			minNoiseHeight = noiseHeight;
+		}
+
+		meshData->Vertices[j].Z = PerlinValue;
+		j++;
+	}
 }
 

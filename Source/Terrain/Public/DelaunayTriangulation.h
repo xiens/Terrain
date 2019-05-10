@@ -5,12 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "delabella.h"
+#include "SimpleDelaunay.hpp"
 #include "ProceduralMeshComponent.h"
 #include <vector>
 #include "DelaunayTriangulation.generated.h"
 
 class Point2;
 class PerlinNoise;
+class MeshGenerator;
+class MeshData;
 
 UCLASS()
 class TERRAIN_API ADelaunayTriangulation : public AActor
@@ -32,6 +35,10 @@ public:
 	//Terrain parameters
 	UPROPERTY(EditAnywhere)
 	float mHeight = 35;
+	UPROPERTY(EditAnywhere)
+		int mDivisions = 63; //number of faces 
+	UPROPERTY(EditAnywhere)
+		float mSize = 100;
 	//float size = 5;
 	//int gridSize = 10;
 	float maxNoiseHeight = 10000;
@@ -55,6 +62,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UProceduralMeshComponent * mesh;
 
+	int mVertCount = (mDivisions + 1) * (mDivisions + 1);
+
 	UPROPERTY(EditAnywhere)
 	int Points = 4225; //AT LEAST 20
 
@@ -71,6 +80,10 @@ private:
 	TArray<FProcMeshTangent> Tangents;
 	TArray<FLinearColor> VertexColors;
 
+	//Mesh components
+	MeshGenerator * meshGenerator = NULL;
+	MeshData * meshData = NULL;
+
 	void PostActorCreated();
 	void PostLoad();
 	void CreateQuad();
@@ -85,4 +98,8 @@ private:
 	void CreateTriangle(int i);
 
 	void GenerateTerrain();
+
+	void GenerateTerrainForTriangulation();
+
+	void TestDelaunay3D();
 };

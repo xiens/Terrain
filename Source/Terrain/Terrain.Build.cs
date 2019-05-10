@@ -23,6 +23,7 @@ public class Terrain : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
         LoadDelaunayTriangulation(Target);
+        LoadDelaunayTriangulation3D(Target);
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
@@ -60,6 +61,32 @@ public class Terrain : ModuleRules
         {
             // Include path
             PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "DelaunayTriangulation", "Includes"));
+        }
+
+        Definitions.Add(string.Format("WITH_DELAUNAY_TRIANGULATION_BINDING={0}", isLibrarySupported ? 1 : 0));
+
+        return isLibrarySupported;
+    }
+
+
+    public bool LoadDelaunayTriangulation3D(ReadOnlyTargetRules Target)
+    {
+        bool isLibrarySupported = false;
+
+        if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
+        {
+            isLibrarySupported = true;
+
+            string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "x64" : "x86";
+            string LibrariesPath = Path.Combine(ThirdPartyPath, "DelaunayTriangulation3D", "Libraries");
+
+            PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "SimpleDelaunay3D" + ".lib"));
+        }
+
+        if (isLibrarySupported)
+        {
+            // Include path
+            PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "DelaunayTriangulation3D", "Includes"));
         }
 
         Definitions.Add(string.Format("WITH_DELAUNAY_TRIANGULATION_BINDING={0}", isLibrarySupported ? 1 : 0));
