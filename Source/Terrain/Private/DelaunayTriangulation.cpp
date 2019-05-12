@@ -290,94 +290,130 @@ void ADelaunayTriangulation::GenerateTerrain() {
 
 void ADelaunayTriangulation::TestDelaunay3D()
 {
+
 	//Generate terrain vertices using perlin noise
-	GenerateTerrainForTriangulation(); 
+	//GenerateTerrainForTriangulation(); 
 
-	std::vector<double> verts;
-	
-	verts.reserve(meshData->Vertices.Num()*3);
+	//std::vector<double> verts;
+	//
+	//verts.reserve(meshData->Vertices.Num()*3);
 
-	for (auto &v : meshData->Vertices) {
+	//for (auto &v : meshData->Vertices) {
 
-		v.X /= 100.0f;
-		v.Y /= 100.0f;
-		v.Z /= 100.0f;
-		UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), v.X, v.Y, v.Z)
-	}
+	//	v.X;
+	//	v.Y;
+	//	v.Z;
+	//	UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), v.X, v.Y, v.Z)
+	//}
 
-	int cnt = 0;
-	for (auto &v : meshData->Vertices) {
-		verts.push_back(v.X);
-		verts.push_back(v.Y);
-		verts.push_back(v.Z);
-		cnt += 3;
-	}
+	//for (auto &v : meshData->Vertices) {
+	//	verts.push_back(v.X);
+	//	verts.push_back(v.Y);
+	//	verts.push_back(v.Z);
+	//}
 
-	for (size_t i = 0; i < verts.size(); i++)
+	//for (int i = 0; i < verts.size(); i++)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("%f"), verts[i])
+
+	//}
+
+	//UE_LOG(LogTemp, Warning, TEXT("num of verts *3 %d"), verts.size())
+	////Call Simple Delaunay for the specific number of dimensions (<3>)
+	////std::vector<int> connectivity = SimpleDelaunay::compute<3>(verts);
+
+	//int size = verts.size() / 3;
+	//UE_LOG(LogTemp, Warning, TEXT("num of verts %d"), size)
+	//// Array here as non-vector container
+	//std::vector<int> indices;
+	//indices.reserve(size);
+
+	//for (int i = 0; i < size; i++) {
+	//	indices.push_back(i);
+	//}
+
+	//// Call Simple Delaunay with pointers and sizes
+	//std::vector<int> connectivity = SimpleDelaunay::compute<3>(&verts[0], verts.size(), &indices[0], size);
+
+	//UE_LOG(LogTemp, Warning, TEXT("connectivity"))
+	//	for (size_t i = 0; i < connectivity.size(); i++)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("%d"), connectivity[i])
+	//	}
+
+	//second approach
+	PerlinNoise pn(seed);
+	TArray<FVector> cloud;
+	cloud.AddZeroed(Points);
+	std::vector<double> verts2;
+
+	//gen some random input
+	for (int i = 0; i < Points; i++)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%f"), verts[i])
+		cloud[i].X = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
+		cloud[i].Y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);
+		cloud[i].Z = pn.noise(cloud[i].X, cloud[i].Y, 0.8)* mHeight;
 
 	}
-	UE_LOG(LogTemp, Warning, TEXT("cnt %d"), cnt)
-	UE_LOG(LogTemp, Warning, TEXT("num of verts %d"), verts.size())
-	//Call Simple Delaunay for the specific number of dimensions (<3>)
-	//std::vector<int> connectivity = SimpleDelaunay::compute<3>(verts);
+	for (auto &c : cloud) {
+		verts2.push_back(c.X);
+		verts2.push_back(c.Y);
+		verts2.push_back(c.Z);
+	}
+	int size2 = verts2.size() / 3;
 
-	int size = verts.size() / 3;
-	// Array here as non-vector container
-	std::vector<int> indices;
-	indices.reserve(size);
-	int count = 0;
-	for (size_t i = 0; i < size; i++) {
-		indices.push_back(count);
-		count++;
+	std::vector<int> indices2;
+	indices2.reserve(size2);
+
+	for (int i = 0; i < size2; i++) {
+		indices2.push_back(i);
 	}
 
-	// Call Simple Delaunay with pointers and sizes
-	//DOESNT WORK FOR MDIVISIONS >= 30
-	//works for 63 ??  oO
-	//unpredictable
-	std::vector<int> connectivity = SimpleDelaunay::compute<3>(&verts[0], verts.size(), &indices[0], size);
+	std::vector<int> connectivity2 = SimpleDelaunay::compute<3>(&verts2[0], verts2.size(), &indices2[0], size2);
 
-	//// Input: vector with the point coordinates in 3 dimensions
-	//std::vector<double> points = { 0.75816742, 0.24371858, 0.92870883,
-	//							   0.12689219, 0.06034812, 0.53746581,
-	//							   0.88915805, 0.24796188, 0.27345906,
-	//							   0.91783859, 0.69470075, 0.28810121,
-	//							   0.23865371, 0.70646204, 0.07248404,
-	//							   0.55374917, 0.52939551, 0.81973793,
-	//							   0.81546199, 0.37344253, 0.96196011,
-	//							   0.61142366, 0.11634092, 0.10327177,
-	//							   0.92806606, 0.04172719, 0.33958352,
-	//							   0.62684985, 0.6717684 , 0.81939159 };
-
-	//std::vector<int> connectivity2 = SimpleDelaunay::compute<3>(points);
-
-	for (size_t i = 0; i < connectivity.size(); i++)
+	UE_LOG(LogTemp, Warning, TEXT("connectivity"))
+	for (size_t i = 0; i < connectivity2.size(); i++)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%d"), connectivity[i])
-
+		UE_LOG(LogTemp, Warning, TEXT("%d"), connectivity2[i])
 	}
 
-		/* The solution looks like:
+	for (int i = 0; i < connectivity2.size(); i++)
+	{
+		Triangles.Add(connectivity2[i]);
+	}
+	UV0.AddZeroed(cloud.Num());
 
-			2, 3, 9, 6,
-			2, 3, 8, 6,
-			2, 5, 9, 6,
-			1, 2, 5, 0,
-			1, 2, 8, 0,
-			2, 6, 8, 0,
-			2, 5, 6, 0,
-			2, 4, 7, 5,
-			2, 3, 9, 5,
-			2, 3, 4, 5,
-			3, 4, 9, 5,
-			1, 4, 7, 5,
-			1, 4, 9, 5,
-			1, 2, 7, 5,
-			1, 7, 8, 2,
-			3, 4, 7, 2
-		*/
+	UE_LOG(LogTemp, Warning, TEXT("heights: "))
+
+	for (int i = 0; i < cloud.Num(); i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("cloud[i].Z %f"), cloud[i].Z)
+
+		Vertices.Add(FVector(cloud[i].X, cloud[i].Y, cloud[i].Z));
+		Normals.Add(FVector(1, 0, 0));
+		float mid = (Width + Height) / 2.0f;
+		UV0.Add(FVector2D(i*(mid /100.0f)/ cloud.Num(), i*(mid / 100.0f)/ cloud.Num()));
+		Tangents.Add(FProcMeshTangent(0, 1, 0));
+		VertexColors.Add(FLinearColor(1, 0, 0, 1.0));
+	}
+
+	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
+
+	//// Enable collision data
+	mesh->ContainsPhysicsTriMeshData(true);
+
+	//float size = FMath::Sqrt(cloud.Num());
+	//for (int x = 0; x < size; x++)
+	//{
+	//	for (int y = 0; y < size; y++)
+	//	{
+	//		UV0[x*size + y] = FVector2D(x / (size - 1), y / (size - 1));
+	//	}
+	//}
+	//for (size_t i = 0; i < triangleVertices.size(); i++) {
+	//	//UE_LOG(LogTemp, Warning, TEXT("uv: (%s)"), *UV0[i].ToString())
+	//}
+		
 
 }
 

@@ -515,17 +515,17 @@ inline std::vector<int> compute(
     // Input checking
     {
         if (n_nodes < N) {
-            std::cout << "Delaunay Error: Too few points for a Delaunay triangulation." << std::endl;
+			UE_LOG(LogTemp, Error, TEXT("Delaunay Error: Too few points for a Delaunay triangulation."))
             abort();
         }
 
         if (n*n_nodes != points_size) {
-            std::cout << "Delaunay Error: Number of points coordinates do not match with number of dimensions." << std::endl;
+			UE_LOG(LogTemp, Error, TEXT("Delaunay Error: Number of points coordinates do not match with number of dimensions."))
             abort();
         }
 
         if (n_nodes != indices_size) {
-            std::cout << "Delaunay Error: Number of points coordinates do not match number of indices." << std::endl;
+			UE_LOG(LogTemp, Error, TEXT("Delaunay Error: Number of points coordinates do not match number of indices."))
             abort();
         }
     }

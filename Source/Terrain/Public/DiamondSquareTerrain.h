@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
+#include "SimpleDelaunay.hpp"
 #include "DiamondSquareTerrain.generated.h"
+
 
 class MeshGenerator;
 class MeshData;
@@ -27,9 +29,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere)
-	int mDivisions = 64; //number of faces
+	int mDivisions = 32; //number of faces
 	UPROPERTY(EditAnywhere)
-	float mSize = 100;
+	float mSize = 10;
 	UPROPERTY(EditAnywhere)
 	float mHeight = 25;
 	UPROPERTY(EditAnywhere)
@@ -48,6 +50,7 @@ private:
 	void PostLoad();
 	void GenerateTerrain();
 	void DiamondSquare(int row, int col, int size, float offset);
+	void DelaunayTriangulation();
 
 	int mVertCount = (mDivisions + 1) * (mDivisions + 1);
 

@@ -24,6 +24,7 @@ public class Terrain : ModuleRules
 
         LoadDelaunayTriangulation(Target);
         LoadDelaunayTriangulation3D(Target);
+        LoadFade3D(Target);
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
@@ -87,6 +88,31 @@ public class Terrain : ModuleRules
         {
             // Include path
             PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "DelaunayTriangulation3D", "Includes"));
+        }
+
+        Definitions.Add(string.Format("WITH_DELAUNAY_TRIANGULATION_BINDING={0}", isLibrarySupported ? 1 : 0));
+
+        return isLibrarySupported;
+    }
+
+    public bool LoadFade3D(ReadOnlyTargetRules Target)
+    {
+        bool isLibrarySupported = false;
+
+        if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
+        {
+            isLibrarySupported = true;
+
+            string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "x64" : "x86";
+            string LibrariesPath = Path.Combine(ThirdPartyPath, "Fade3D", "Libraries");
+
+            PublicAdditionalLibraries.Add(Path.Combine(LibrariesPath, "fade3D_x64_v141_Release" + ".lib"));
+        }
+
+        if (isLibrarySupported)
+        {
+            // Include path
+            PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "Fade3D", "Includes"));
         }
 
         Definitions.Add(string.Format("WITH_DELAUNAY_TRIANGULATION_BINDING={0}", isLibrarySupported ? 1 : 0));

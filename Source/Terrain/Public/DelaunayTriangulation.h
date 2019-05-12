@@ -34,11 +34,11 @@ public:
 
 	//Terrain parameters
 	UPROPERTY(EditAnywhere)
-	float mHeight = 35;
+	float mHeight = 150;
 	UPROPERTY(EditAnywhere)
-		int mDivisions = 63; //number of faces 
+	int mDivisions = 4; //number of faces 
 	UPROPERTY(EditAnywhere)
-		float mSize = 100;
+	float mSize = 100;
 	//float size = 5;
 	//int gridSize = 10;
 	float maxNoiseHeight = 10000;
@@ -65,7 +65,7 @@ private:
 	int mVertCount = (mDivisions + 1) * (mDivisions + 1);
 
 	UPROPERTY(EditAnywhere)
-	int Points = 4225; //AT LEAST 20
+	int Points = 300; //AT LEAST 20
 
 	float Width = 500.0f;
 	float Height = 500.0f;
