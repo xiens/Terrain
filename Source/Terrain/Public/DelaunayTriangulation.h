@@ -34,9 +34,9 @@ public:
 
 	//Terrain parameters
 	UPROPERTY(EditAnywhere)
-	float mHeight = 150;
+	float mHeight = 15;
 	UPROPERTY(EditAnywhere)
-	int mDivisions = 4; //number of faces 
+	int mDivisions = 8; //number of faces 
 	UPROPERTY(EditAnywhere)
 	float mSize = 100;
 	//float size = 5;
@@ -58,6 +58,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	int seed = 5;
 
+	void GenerateTerrain2(float Height, float Lacunarity, float Scale, float Persistance);
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UProceduralMeshComponent * mesh;
@@ -65,10 +67,10 @@ private:
 	int mVertCount = (mDivisions + 1) * (mDivisions + 1);
 
 	UPROPERTY(EditAnywhere)
-	int Points = 300; //AT LEAST 20
+	int Points = (mDivisions + 1) * (mDivisions + 1);//AT LEAST 20
 
-	float Width = 500.0f;
-	float Height = 500.0f;
+	float Width = 100.0f;
+	float Height = 100.0f;
 
 	int triangleInd = 0;
 
@@ -86,7 +88,8 @@ private:
 
 	void PostActorCreated();
 	void PostLoad();
-	void CreateQuad();
+	void CreateSmoothlyShadedQuad(); //vertices don't repeat
+	//void CreateFlatShadedQuad(); //each triangle has its own 3 vertices
 
 
 	std::vector<int> CalculateTriangleIndices(std::vector<DelaBella_Triangle> triangles, std::vector<DelaBella_Vertex> &triangleVertices);
@@ -99,7 +102,9 @@ private:
 
 	void GenerateTerrain();
 
+
 	void GenerateTerrainForTriangulation();
 
 	void TestDelaunay3D();
+
 };

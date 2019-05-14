@@ -51,6 +51,7 @@ private:
 	void GenerateTerrain();
 	void DiamondSquare(int row, int col, int size, float offset);
 	void DelaunayTriangulation();
+	void DelaunayTriangulation2();
 
 	int mVertCount = (mDivisions + 1) * (mDivisions + 1);
 

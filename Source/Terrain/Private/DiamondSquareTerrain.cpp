@@ -48,8 +48,8 @@ void ADiamondSquareTerrain::PostActorCreated()
 {
 	Super::PostActorCreated();
 	//double start = FPlatformTime::Seconds();
-	GenerateTerrain();
-	DelaunayTriangulation();
+	//GenerateTerrain();
+	//DelaunayTriangulation();
 	/*double end = FPlatformTime::Seconds();
 	double TimeElapsed = end - start;*/
 	//UE_LOG(LogActor, Warning, TEXT("Tick Timer: %.6f Start: %.6f"), end - start, start);
@@ -234,5 +234,10 @@ void ADiamondSquareTerrain::DelaunayTriangulation()
 
 	////// Enable collision data
 	//mesh->ContainsPhysicsTriMeshData(true);
+}
+
+void ADiamondSquareTerrain::DelaunayTriangulation2()
+{
+
 }
 

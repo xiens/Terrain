@@ -29,6 +29,7 @@ ADelaunayTriangulation::ADelaunayTriangulation()
 
 	meshGenerator = new MeshGenerator();
 	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
+	mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
 }
 
 // Called when the game starts or when spawned
@@ -47,8 +48,9 @@ void ADelaunayTriangulation::PostActorCreated() {
 	double TimeElapsed = end - start;*/
 
 	//UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain generation time: %f"), TimeElapsed);
-	TestDelaunay3D();
-
+	//TestDelaunay3D();
+	CreateSmoothlyShadedQuad();
+	GenerateTerrain();
 }
 
 // This is called when actor is already in level and map is opened
@@ -153,25 +155,28 @@ void ADelaunayTriangulation::CreateTriangle(int i)
 	triangleInd++;
 }
 
-void ADelaunayTriangulation::CreateQuad() {
+void ADelaunayTriangulation::CreateSmoothlyShadedQuad() {
 
 	Point2* cloud = new Point2[Points];
 
-	if (Points < 5) return;
+	//if (Points < 5) return;
 
-	//Create the corners of quad
-	cloud[0] = Point2(-0.5f*Width, -0.5f*Height);
-	cloud[1] = Point2(0.5f*Width, -0.5f*Height);
-	cloud[3] = Point2(-0.5f*Width, 0.5f*Height);
-	cloud[2] = Point2(0.5f*Width, 0.5f*Height);
-	cloud[4] = Point2(-0.5f*Width, -0.501f*Height);
+	////Create the corners of quad
+	//cloud[0] = Point2(-0.5f*Width, -0.5f*Height);
+	//cloud[1] = Point2(0.5f*Width, -0.5f*Height);
+	//cloud[3] = Point2(-0.5f*Width, 0.5f*Height);
+	//cloud[2] = Point2(0.5f*Width, 0.5f*Height);
+	//cloud[4] = Point2(-0.5f*Width, -0.501f*Height);
 
 	//gen some random input
-	for (int i = 5; i < Points; i++)
+	for (int i = 0; i < Points; i++)
 	{
-		cloud[i].x = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
-		cloud[i].y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);
+		/*cloud[i].x = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
+		cloud[i].y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);*/
+		cloud[i].x = meshData->Vertices[i].X;
+		cloud[i].y = meshData->Vertices[i].Y;
 	}
+
 
 	//Use the 2D Delaunay Triangulation on the generated points
 	IDelaBella* idb = IDelaBella::Create();
@@ -238,8 +243,63 @@ void ADelaunayTriangulation::CreateQuad() {
 
 void ADelaunayTriangulation::GenerateTerrain() {
 
-	//System.Random prng = new System.Random(seed);
-	//TODO use seed 
+	PerlinNoise pn(seed);
+	FVector2D *octaveOffsets = new FVector2D[octaves];
+	for (int octave = 0; octave < octaves; octave++)
+	{
+		float offsetX = FMath::FRandRange(-100000, 100000) + offset.X;
+		float offsetY = FMath::FRandRange(-100000, 100000) + offset.Y;
+		octaveOffsets[octave] = FVector2D(offsetX, offsetY);
+	}
+
+	int j = 0;
+	//PerlinNoise
+	for (int i = 0; i < Points; i++)
+	{
+		float amplitude = 1;
+		float frequency = 1;
+		float noiseHeight = 0;
+		float PerlinValue = 0;
+
+		for (int octave = 0; octave < octaves; octave++)
+		{
+			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
+			float yCoord = Vertices[i].Y * scale  * frequency + octaveOffsets[octave].Y;
+
+			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
+			noiseHeight += PerlinValue * amplitude;
+			amplitude *= persistance; //decreases each octave
+			frequency *= lacunarity;
+		}
+
+		if (noiseHeight > maxNoiseHeight)
+		{
+			maxNoiseHeight = noiseHeight;
+		}
+		else if (noiseHeight < minNoiseHeight)
+		{
+			minNoiseHeight = noiseHeight;
+		}
+
+		Vertices[j].Z = PerlinValue;
+		j++;
+	}
+
+	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
+
+	//// Enable collision data
+	mesh->ContainsPhysicsTriMeshData(true);
+
+	
+}
+
+void ADelaunayTriangulation::GenerateTerrain2(float Height, float Lacunarity, float Scale, float Persistance)
+{
+	mHeight = Height;
+	lacunarity = Lacunarity;
+	scale = Scale;
+	persistance = Persistance;
+
 	PerlinNoise pn(seed);
 	FVector2D *octaveOffsets = new FVector2D[octaves];
 	for (int octave = 0; octave < octaves; octave++)
@@ -287,6 +347,7 @@ void ADelaunayTriangulation::GenerateTerrain() {
 	//// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
 }
+
 
 void ADelaunayTriangulation::TestDelaunay3D()
 {
@@ -341,66 +402,67 @@ void ADelaunayTriangulation::TestDelaunay3D()
 	//		UE_LOG(LogTemp, Warning, TEXT("%d"), connectivity[i])
 	//	}
 
-	//second approach
-	PerlinNoise pn(seed);
-	TArray<FVector> cloud;
-	cloud.AddZeroed(Points);
-	std::vector<double> verts2;
+	////SECOND APPROACH
+	//PerlinNoise pn(seed);
+	//TArray<FVector> cloud;
+	//cloud.AddZeroed(Points);
+	//std::vector<double> verts2;
 
-	//gen some random input
-	for (int i = 0; i < Points; i++)
-	{
-		cloud[i].X = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
-		cloud[i].Y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);
-		cloud[i].Z = pn.noise(cloud[i].X, cloud[i].Y, 0.8)* mHeight;
+	////gen some random input
+	//for (int i = 0; i < Points; i++)
+	//{
+	//	cloud[i].X = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
+	//	cloud[i].Y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);
+	//	cloud[i].Z = pn.noise(cloud[i].X, cloud[i].Y, 0.8)* mHeight;
 
-	}
-	for (auto &c : cloud) {
-		verts2.push_back(c.X);
-		verts2.push_back(c.Y);
-		verts2.push_back(c.Z);
-	}
-	int size2 = verts2.size() / 3;
+	//}
+	//for (auto &c : cloud) {
+	//	verts2.push_back(c.X);
+	//	verts2.push_back(c.Y);
+	//	verts2.push_back(c.Z);
+	//}
+	//int size2 = verts2.size() / 3;
 
-	std::vector<int> indices2;
-	indices2.reserve(size2);
+	//std::vector<int> indices2;
+	//indices2.reserve(size2);
 
-	for (int i = 0; i < size2; i++) {
-		indices2.push_back(i);
-	}
+	//for (int i = 0; i < size2; i++) {
+	//	indices2.push_back(i);
+	//}
 
-	std::vector<int> connectivity2 = SimpleDelaunay::compute<3>(&verts2[0], verts2.size(), &indices2[0], size2);
+	//std::vector<int> connectivity2 = SimpleDelaunay::compute<3>(&verts2[0], verts2.size(), &indices2[0], size2);
 
-	UE_LOG(LogTemp, Warning, TEXT("connectivity"))
-	for (size_t i = 0; i < connectivity2.size(); i++)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%d"), connectivity2[i])
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("connectivity"))
+	//for (size_t i = 0; i < connectivity2.size(); i++)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("%d"), connectivity2[i])
+	//}
 
-	for (int i = 0; i < connectivity2.size(); i++)
-	{
-		Triangles.Add(connectivity2[i]);
-	}
-	UV0.AddZeroed(cloud.Num());
+	//for (int i = 0; i < connectivity2.size(); i++)
+	//{
+	//	Triangles.Add(connectivity2[i]);
+	//}
+	//UV0.AddZeroed(cloud.Num());
 
-	UE_LOG(LogTemp, Warning, TEXT("heights: "))
+	//UE_LOG(LogTemp, Warning, TEXT("heights: "))
 
-	for (int i = 0; i < cloud.Num(); i++)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("cloud[i].Z %f"), cloud[i].Z)
+	//for (int i = 0; i < cloud.Num(); i++)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("cloud[i].Z %f"), cloud[i].Z)
 
-		Vertices.Add(FVector(cloud[i].X, cloud[i].Y, cloud[i].Z));
-		Normals.Add(FVector(1, 0, 0));
-		float mid = (Width + Height) / 2.0f;
-		UV0.Add(FVector2D(i*(mid /100.0f)/ cloud.Num(), i*(mid / 100.0f)/ cloud.Num()));
-		Tangents.Add(FProcMeshTangent(0, 1, 0));
-		VertexColors.Add(FLinearColor(1, 0, 0, 1.0));
-	}
+	//	Vertices.Add(FVector(cloud[i].X, cloud[i].Y, cloud[i].Z));
+	//	Normals.Add(FVector(1, 0, 0));
+	//	float mid = (Width + Height) / 2.0f;
+	//	UV0.Add(FVector2D(i*(mid /100.0f)/ cloud.Num(), i*(mid / 100.0f)/ cloud.Num()));
+	//	Tangents.Add(FProcMeshTangent(0, 1, 0));
+	//	VertexColors.Add(FLinearColor(1, 0, 0, 1.0));
+	//}
 
-	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
+	//mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UV0, VertexColors, Tangents, true);
 
-	//// Enable collision data
-	mesh->ContainsPhysicsTriMeshData(true);
+	////// Enable collision data
+	//mesh->ContainsPhysicsTriMeshData(true);
+//END OF SECOND APPROACH
 
 	//float size = FMath::Sqrt(cloud.Num());
 	//for (int x = 0; x < size; x++)

@@ -28,7 +28,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere)
-	int mDivisions = 64; //number of faces
+	int mDivisions = 8; //number of faces
 	UPROPERTY(EditAnywhere)
 	float mSize = 100;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", UIMin = "0.0"))
