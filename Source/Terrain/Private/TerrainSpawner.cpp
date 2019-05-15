@@ -36,7 +36,7 @@ void ATerrainSpawner::Tick(float DeltaTime)
 
 void ATerrainSpawner::SpawnTerrainActors() {
 
-	int TerrainSamplesNum = 3;
+	int TerrainSamplesNum = 5;
 	float ChangeRate = 10.0f;
 
 	//Starting parameters:
@@ -47,26 +47,32 @@ void ATerrainSpawner::SpawnTerrainActors() {
 	float StartPersistance = Persistance;
 	float StartScale = Scale;
 
-	FTransform SpawnLocAndRotation;
-	SpawnLocAndRotation = FTransform(GetActorTransform());
 	FVector CurrentLocation = GetActorLocation();
 
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
-	SpawnDelaunayAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation);
-	SpawnDelaunayAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation);
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation);
-	SpawnDelaunayAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation);
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
-	SpawnDelaunayAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
+	std::vector<double> PerlinNoiseTimes;
+	std::vector<double> DelaunayTriangulationTimes;
+	std::vector<double> DiamondSquareTimes;
+
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation);
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation);
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation);
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation);
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
+	//UE_LOG(LogTemp, Warning, TEXT(" divisions: %d"), Divisions)
+	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
+
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Roughness", 0.2f, CurrentLocation);
 
-
+		//UE_LOG(LogTemp, Warning, TEXT("Mesh generation time: %f"), MeshGenerationTime);
 
 }
 
-void ATerrainSpawner::SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc)
+void ATerrainSpawner::SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log)
 {
 	FVector Location = StartLoc;
 
@@ -76,25 +82,29 @@ void ATerrainSpawner::SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString 
 		if (ParameterToChange == "Height") {
 			Parameter = Height;
 			SpawnPerlinNoiseTerrain(Divisions, Size, Parameter+i*ChangeRate, Lacunarity, Scale, Persistance, Location);
-			UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain height = %f"), Parameter + i * ChangeRate)
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain height = %f"), Parameter + i * ChangeRate)
 
 		}
 		else if(ParameterToChange == "Lacunarity") {
 			Parameter = Lacunarity;
 			SpawnPerlinNoiseTerrain(Divisions, Size, Height, Parameter + i * ChangeRate, Scale, Persistance, Location);
-			UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain lacunarity = %f"), Parameter + i * ChangeRate)
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain lacunarity = %f"), Parameter + i * ChangeRate)
 
 		}
 		else if (ParameterToChange == "Persistance") {
 			Parameter = Persistance;
 			SpawnPerlinNoiseTerrain(Divisions, Size, Height, Lacunarity, Scale, Parameter + i * ChangeRate, Location);
-			UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain persistance = %f"), Parameter + i * ChangeRate)
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain persistance = %f"), Parameter + i * ChangeRate)
 		}
 		else if (ParameterToChange == "Scale") {
 			Parameter = Scale;
 			SpawnPerlinNoiseTerrain(Divisions, Size, Height, Lacunarity, Parameter + i * ChangeRate, Persistance, Location);
-			UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain scale = %f"), Parameter + i * ChangeRate)
-
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain scale = %f"), Parameter + i * ChangeRate)
+		}
+		else if (ParameterToChange == "Divisions") {
+			Parameter = Divisions;
+			SpawnPerlinNoiseTerrain(Parameter + i * ChangeRate, Size, Height, Lacunarity, Scale, Persistance, Location);
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain number of vertices = %.0f"), ((Parameter + i * ChangeRate)+1)*((Parameter + i * ChangeRate) + 1))
 		}
 		Location += MoveInX;
 	}
@@ -121,7 +131,9 @@ void ATerrainSpawner::SpawnDiamondSquareAtLocation(int TerrainSamplesNum, FStrin
 
 		}
 		else if (ParameterToChange == "Divisions") {
-			UE_LOG(LogTemp, Warning, TEXT("Diamond Square Not yet xfloolz = %f"))
+			Parameter = Divisions;
+			SpawnDiamondSquareTerrain(Parameter + i * ChangeRate, Height, Roughness, Location);
+			UE_LOG(LogTemp, Warning, TEXT("Diamond Square Terrain number of vertices = %d"), ((Parameter + i * ChangeRate) + 1)*((Parameter + i * ChangeRate) + 1) )
 		}
 
 		Location += MoveInX;
@@ -129,7 +141,7 @@ void ATerrainSpawner::SpawnDiamondSquareAtLocation(int TerrainSamplesNum, FStrin
 	StartLoc += MoveInY;
 }
 
-void ATerrainSpawner::SpawnDelaunayAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector & StartLoc)
+void ATerrainSpawner::SpawnDelaunayAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector & StartLoc, bool log)
 {
 	FVector Location = StartLoc;
 
@@ -139,25 +151,29 @@ void ATerrainSpawner::SpawnDelaunayAtLocation(int TerrainSamplesNum, FString Par
 		if (ParameterToChange == "Height") {
 			Parameter = Height;
 			SpawnDelaunayTerrain(Divisions, Size, Parameter + i * ChangeRate, Lacunarity, Scale, Persistance, Location);
-			//UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain height = %f"), Parameter + i * ChangeRate)
+			if(log) UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain height = %f"), Parameter + i * ChangeRate)
 
 		}
 		else if (ParameterToChange == "Lacunarity") {
 			Parameter = Lacunarity;
 			SpawnDelaunayTerrain(Divisions, Size, Height, Parameter + i * ChangeRate, Scale, Persistance, Location);
-			//UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain lacunarity = %f"), Parameter + i * ChangeRate)
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain lacunarity = %f"), Parameter + i * ChangeRate)
 
 		}
 		else if (ParameterToChange == "Persistance") {
 			Parameter = Persistance;
 			SpawnDelaunayTerrain(Divisions, Size, Height, Lacunarity, Scale, Parameter + i * ChangeRate, Location);
-			//UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain persistance = %f"), Parameter + i * ChangeRate)
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain persistance = %f"), Parameter + i * ChangeRate)
 		}
 		else if (ParameterToChange == "Scale") {
 			Parameter = Scale;
 			SpawnDelaunayTerrain(Divisions, Size, Height, Lacunarity, Parameter + i * ChangeRate, Persistance, Location);
-			//UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain scale = %f"), Parameter + i * ChangeRate)
-
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain scale = %f"), Parameter + i * ChangeRate)
+		}
+		else if (ParameterToChange == "Divisions") {
+			Parameter = Divisions;
+			SpawnDelaunayTerrain(Parameter + i * ChangeRate, Size, Height, Lacunarity, Scale, Persistance, Location);
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain number of vertices = %.0f"), ((Parameter + i * ChangeRate) + 1)*((Parameter + i * ChangeRate) + 1))
 		}
 		Location += MoveInX;
 	}
@@ -167,7 +183,7 @@ void ATerrainSpawner::SpawnDelaunayAtLocation(int TerrainSamplesNum, FString Par
 void ATerrainSpawner::SpawnPerlinNoiseTerrain(int Divisions, float Size, float Height, float Lacunarity, float Scale, float Persistance, FVector TerrainLoc)
 {
 	APerlinNoiseTerrain* MyActor = GetWorld()->SpawnActorDeferred<APerlinNoiseTerrain>(APerlinNoiseTerrain::StaticClass(), FTransform(TerrainLoc));
-	MyActor->GenerateTerrain2(Height, Lacunarity, Scale, Persistance);
+	MyActor->SetTerrainParams(Divisions, Height, Lacunarity, Scale, Persistance);
 	MyActor->FinishSpawning(FTransform(TerrainLoc));
 
 }
@@ -182,7 +198,11 @@ void ATerrainSpawner::SpawnDiamondSquareTerrain(int Divisions, float Height, flo
 void ATerrainSpawner::SpawnDelaunayTerrain(int Divisions, float Size, float Height, float Lacunarity, float Scale, float Persistance, FVector TerrainLoc)
 {
 	ADelaunayTriangulation* MyActor = GetWorld()->SpawnActorDeferred<ADelaunayTriangulation>(ADelaunayTriangulation::StaticClass(), FTransform(TerrainLoc));
-	MyActor->GenerateTerrain2(Height, Lacunarity, Scale, Persistance);
+	//Constructor of MyActor is called
+	//PostActorCreated of MyActor is also called
+
+	//MyActor->GenerateTerrain2(Divisions, Height, Lacunarity, Scale, Persistance);
+	MyActor->SetTerrainParams(Divisions, Height, Lacunarity, Scale, Persistance);
 	MyActor->FinishSpawning(FTransform(TerrainLoc));
 }
 

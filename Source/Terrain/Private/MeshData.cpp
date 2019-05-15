@@ -14,6 +14,7 @@ MeshData::~MeshData()
 
 MeshData::MeshData(int mDivisions)
 {
+	triangleIndex = 0;
 	int mVertCount = (mDivisions + 1)*(mDivisions + 1);
 
 	Vertices.AddZeroed(mVertCount);

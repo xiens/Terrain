@@ -28,6 +28,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void OnConstruction(const FTransform& transform) override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -58,7 +60,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	int seed = 5;
 
-	void GenerateTerrain2(float Height, float Lacunarity, float Scale, float Persistance);
+	void GenerateTerrain2(float Divisions, float Height, float Lacunarity, float Scale, float Persistance);
+
+	void SetTerrainParams(float Divisions, float Height, float Lacunarity, float Scale, float Persistance);
 
 private:
 	UPROPERTY(VisibleAnywhere)

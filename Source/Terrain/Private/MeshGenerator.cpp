@@ -35,18 +35,8 @@ MeshData * MeshGenerator::GenerateMesh(int mDivisions, int mSize)
 				int topLeft = x * (mDivisions + 1) + y;
 				int bottomLeft = (x + 1) * (mDivisions + 1) + y;
 
-				/*meshData->AddTriangle(topLeft, topLeft + 1, bottomLeft + 1);
-				meshData->AddTriangle(topLeft, bottomLeft+1, bottomLeft);*/
-				
-				meshData->Triangles[triOffset] = topLeft;
-				meshData->Triangles[triOffset + 1] = topLeft + 1;
-				meshData->Triangles[triOffset + 2] = bottomLeft + 1;
-
-				meshData->Triangles[triOffset + 3] = topLeft;
-				meshData->Triangles[triOffset + 4] = bottomLeft + 1;
-				meshData->Triangles[triOffset + 5] = bottomLeft;
-
-				triOffset += 6;
+				meshData->AddTriangle(topLeft, topLeft + 1, bottomLeft + 1);
+				meshData->AddTriangle(topLeft, bottomLeft+1, bottomLeft);
 			}
 		}
 	}
@@ -55,6 +45,28 @@ MeshData * MeshGenerator::GenerateMesh(int mDivisions, int mSize)
 	MeshGenerationTime = end - start;
 
 	//UE_LOG(LogTemp, Warning, TEXT("Mesh generation time: %f"), MeshGenerationTime);
+
+	return meshData;
+}
+
+MeshData * MeshGenerator::GenerateMeshForTriangulation(int mDivisions, int mSize)
+{
+
+	meshData = new MeshData(mDivisions);
+
+	float halfSize = mSize * 0.5f;
+	float divisionSize = mSize / mDivisions;
+
+	int triOffset = 0;
+
+	for (int x = 0; x <= mDivisions; x++)
+	{
+		for (int y = 0; y <= mDivisions; y++)
+		{
+			meshData->Vertices[x * (mDivisions + 1) + y] = FVector(-halfSize + y * divisionSize, halfSize - x * divisionSize, 0.0f);
+			meshData->UV0[x * (mDivisions + 1) + y] = FVector2D((float)x / mDivisions, (float)y / mDivisions);
+		}
+	}
 
 	return meshData;
 }

@@ -21,7 +21,6 @@ APerlinNoiseTerrain::APerlinNoiseTerrain()
 	PrimaryActorTick.bCanEverTick = true;
 
 	meshGenerator = new MeshGenerator();
-	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
 
 	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
 	if (ConcreteMaterialAsset.Succeeded())
@@ -42,30 +41,26 @@ void APerlinNoiseTerrain::BeginPlay()
 	//TODO Generate bigger terrain with more vertices and measure time for each generation
 }
 
+void APerlinNoiseTerrain::OnConstruction(const FTransform & transform)
+{
+	Super::OnConstruction(transform);
+
+	mVertCount = (mDivisions + 1) * (mDivisions + 1);
+	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
+	GenerateTerrain2(mDivisions, mHeight, lacunarity, scale, persistance);
+}
+
 // Called every frame
 void APerlinNoiseTerrain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void APerlinNoiseTerrain::SetTerrainParameters(int Divisions, float Size, float Height, float _lacunarity, float _scale)
-{
-	mDivisions = Divisions;
-	mSize = Size;
-	mHeight = Height;
-	lacunarity = _lacunarity;
-	scale = _scale;
-}
 
 void APerlinNoiseTerrain::PostActorCreated()
 {
 	Super::PostActorConstruction();
-	double start = FPlatformTime::Seconds();
-	GenerateTerrain();
-	double end = FPlatformTime::Seconds();
-	double TimeElapsed = end - start;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain generation time: %f"), TimeElapsed + meshGenerator->MeshGenerationTime);
 
 }
 
@@ -127,8 +122,11 @@ void APerlinNoiseTerrain::GenerateTerrain()
 	mesh->ContainsPhysicsTriMeshData(true);
 }
 
-void APerlinNoiseTerrain::GenerateTerrain2(float Height, float Lacunarity, float Scale, float Persistance)
+void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float Lacunarity, float Scale, float Persistance)
 {
+	double start = FPlatformTime::Seconds();
+
+	mDivisions = Divisions;
 	scale = Scale;
 	lacunarity = Lacunarity;
 	mHeight = Height;
@@ -184,5 +182,21 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Height, float Lacunarity, float
 
 	//// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
+
+	double end = FPlatformTime::Seconds();
+	double TimeElapsed = end - start;
+
+	UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain generation time: %f"), TimeElapsed + meshGenerator->MeshGenerationTime);
+
+	delete meshData;
+}
+
+void APerlinNoiseTerrain::SetTerrainParams(float Divisions, float Height, float Lacunarity, float Scale, float Persistance)
+{
+	mDivisions = Divisions;
+	mHeight = Height;
+	lacunarity = Lacunarity;
+	scale = Scale;
+	persistance = Persistance;
 }
 

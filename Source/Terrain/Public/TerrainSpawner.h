@@ -28,15 +28,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SpawnTerrainActors();
-	void SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc);
+	void SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log);
 	void SpawnDiamondSquareAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc);
-	void SpawnDelaunayAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc);
+	void SpawnDelaunayAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log);
 
 	void SpawnPerlinNoiseTerrain(int Divisions, float Size, float Height, float Lacunarity, float Scale, float Persistance, FVector TerrainLoc);
 	void SpawnDiamondSquareTerrain(int Divisions, float Height, float Roughness, FVector TerrainLoc);
 	void SpawnDelaunayTerrain(int Divisions, float Size, float Height, float Lacunarity, float Scale, float Persistance, FVector TerrainLoc);
 
-	int Divisions = 32;
+	int Divisions = 8;
 	float Size = 100.0f;
 	float Height = 15.0f;
 	float Lacunarity = 0.5f;

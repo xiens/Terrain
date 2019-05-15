@@ -22,7 +22,7 @@ public:
 	TArray<FProcMeshTangent> Tangents;
 	TArray<FLinearColor> VertexColors;
 
-	int triangleIndex;
+	int triangleIndex = 0;
 
 	MeshData(int mDivisions);
 

@@ -19,4 +19,6 @@ public:
 	MeshData * meshData = NULL;
 
 	MeshData * GenerateMesh(int mDivisions, int mSize);
+
+	MeshData * GenerateMeshForTriangulation(int mDivisions, int mSize);
 };
