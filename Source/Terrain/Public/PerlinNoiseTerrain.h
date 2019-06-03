@@ -51,8 +51,8 @@ public:
 	int seed = 5;
 
 	void GenerateTerrain();
-	void GenerateTerrain2(float Divisions, float Height, float Lacunarity, float Scale, float Persistance);
-	void SetTerrainParams(float Divisions, float Height, float Lacunarity, float Scale, float Persistance);
+	void GenerateTerrain2(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance);
+	void SetTerrainParams(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance);
 
 private:
 	UPROPERTY(VisibleAnywhere)

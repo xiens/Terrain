@@ -42,7 +42,8 @@ void ADelaunayTriangulation::OnConstruction(const FTransform & transform)
 
 	Points = (mDivisions + 1) * (mDivisions + 1);
 	meshData = meshGenerator->GenerateMeshForTriangulation(mDivisions, mSize);
-	GenerateTerrain2(mDivisions, mHeight, lacunarity, scale, persistance);
+	GenerateTerrain2(mDivisions, mHeight, mSize, lacunarity, scale, persistance);
+
 }
 
 // This is called when actor is spawned
@@ -135,30 +136,6 @@ bool ADelaunayTriangulation::IsVertexDefined(std::vector<DelaBella_Vertex> trian
 	}
 
 	return false;
-}
-
-
-void ADelaunayTriangulation::CreateTriangle(int i)
-{
-	TArray<FVector> triVerts;
-	TArray<int> triIndices;
-	TArray<FVector> _normals;
-	TArray<FVector2D> _UV0;
-	TArray<FProcMeshTangent> _tangents;
-	TArray<FLinearColor> _vertexColors;
-
-	for (int32 v = 0; v < 3; v++) {
-		triVerts.Add(Vertices[Triangles[i + v]]);
-		triIndices.Add(v);
-		_UV0.Add(UV0[Triangles[i + v]]);
-		_tangents.Add(FProcMeshTangent(0, 1, 0));
-		_vertexColors.Add(FLinearColor(1, 0, 0, 1.0));
-		_normals.Add(FVector(1, 0, 0));
-	}
-	//UE_LOG(LogTemp, Warning, TEXT("(v %d): (%s) (v %d): (%s) (v %d): (%s) "),triIndices[0],*triVerts[0].ToString(), triIndices[1], *triVerts[1].ToString(), triIndices[2], *triVerts[2].ToString())
-
-	mesh->CreateMeshSection_LinearColor(triangleInd, triVerts, triIndices, _normals, _UV0, _vertexColors, _tangents, true);
-	triangleInd++;
 }
 
 void ADelaunayTriangulation::CreateSmoothlyShadedQuad() {
@@ -298,16 +275,18 @@ void ADelaunayTriangulation::GenerateTerrain() {
 	
 }
 
-void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, float Lacunarity, float Scale, float Persistance)
+void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance)
 {
 	double start = FPlatformTime::Seconds();
 
 	CreateSmoothlyShadedQuad();
 
 	mHeight = Height;
+	mSize = Size;
 	lacunarity = Lacunarity;
 	scale = Scale;
 	persistance = Persistance;
+	
 
 	PerlinNoise pn(seed);
 	FVector2D *octaveOffsets = new FVector2D[octaves];
@@ -362,10 +341,11 @@ void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, flo
 	UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain generation time: %f"), TimeElapsed);
 }
 
-void ADelaunayTriangulation::SetTerrainParams(float Divisions, float Height, float Lacunarity, float Scale, float Persistance)
+void ADelaunayTriangulation::SetTerrainParams(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance)
 {
 	mDivisions = Divisions;
 	mHeight = Height;
+	mSize = Size;
 	lacunarity = Lacunarity;
 	scale = Scale;
 	persistance = Persistance;

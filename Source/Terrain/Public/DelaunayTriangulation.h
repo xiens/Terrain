@@ -60,9 +60,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	int seed = 5;
 
-	void GenerateTerrain2(float Divisions, float Height, float Lacunarity, float Scale, float Persistance);
+	void GenerateTerrain2(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance);
 
-	void SetTerrainParams(float Divisions, float Height, float Lacunarity, float Scale, float Persistance);
+	void SetTerrainParams(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance);
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -93,8 +93,6 @@ private:
 	void PostActorCreated();
 	void PostLoad();
 	void CreateSmoothlyShadedQuad(); //vertices don't repeat
-	//void CreateFlatShadedQuad(); //each triangle has its own 3 vertices
-
 
 	std::vector<int> CalculateTriangleIndices(std::vector<DelaBella_Triangle> triangles, std::vector<DelaBella_Vertex> &triangleVertices);
 
@@ -102,10 +100,7 @@ private:
 		DelaBella_Vertex v,
 		std::vector<int>indices, int &oldIndex);
 
-	void CreateTriangle(int i);
-
 	void GenerateTerrain();
-
 
 	void GenerateTerrainForTriangulation();
 

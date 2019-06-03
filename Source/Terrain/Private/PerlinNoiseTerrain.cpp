@@ -47,7 +47,7 @@ void APerlinNoiseTerrain::OnConstruction(const FTransform & transform)
 
 	mVertCount = (mDivisions + 1) * (mDivisions + 1);
 	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
-	GenerateTerrain2(mDivisions, mHeight, lacunarity, scale, persistance);
+	GenerateTerrain2(mDivisions, mHeight, mSize, lacunarity, scale, persistance);
 }
 
 // Called every frame
@@ -122,7 +122,7 @@ void APerlinNoiseTerrain::GenerateTerrain()
 	mesh->ContainsPhysicsTriMeshData(true);
 }
 
-void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float Lacunarity, float Scale, float Persistance)
+void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance)
 {
 	double start = FPlatformTime::Seconds();
 
@@ -130,7 +130,9 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float 
 	scale = Scale;
 	lacunarity = Lacunarity;
 	mHeight = Height;
+	mSize = Size;
 	persistance = Persistance;
+	
 
 
 	PerlinNoise pn(seed);
@@ -191,10 +193,11 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float 
 	delete meshData;
 }
 
-void APerlinNoiseTerrain::SetTerrainParams(float Divisions, float Height, float Lacunarity, float Scale, float Persistance)
+void APerlinNoiseTerrain::SetTerrainParams(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance)
 {
 	mDivisions = Divisions;
 	mHeight = Height;
+	mSize = Size;
 	lacunarity = Lacunarity;
 	scale = Scale;
 	persistance = Persistance;

@@ -25,19 +25,23 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	UPROPERTY(EditAnywhere)
-	int mDivisions = 32; //number of faces
-	UPROPERTY(EditAnywhere)
-	float mSize = 10;
-	UPROPERTY(EditAnywhere)
-	float mHeight = 25;
-	UPROPERTY(EditAnywhere)
-	float roughness = 0.4;
+	virtual void OnConstruction(const FTransform& transform) override;
 
-	void GenerateTerrain2(float mDivisions, float mHeight, float roughness);
+public:
+
+	UPROPERTY(EditAnywhere)
+	int mDivisions = 8; //number of faces
+	UPROPERTY(EditAnywhere)
+	float mSize = 100.0f;
+	UPROPERTY(EditAnywhere)
+	float mHeight = 15.0f;
+	UPROPERTY(EditAnywhere)
+	float mRoughness = 0.4;
+
+	void GenerateTerrain2(int Divisions,  float Height, float Size, float Roughness);
+
+	void SetTerrainParams(int Divisions, float Height, float Size, float Roughness);
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UProceduralMeshComponent * mesh;
@@ -50,8 +54,6 @@ private:
 	void PostLoad();
 	void GenerateTerrain();
 	void DiamondSquare(int row, int col, int size, float offset);
-	void DelaunayTriangulation();
-	void DelaunayTriangulation2();
 
 	int mVertCount = (mDivisions + 1) * (mDivisions + 1);
 
