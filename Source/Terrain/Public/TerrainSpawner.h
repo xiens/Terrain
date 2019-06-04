@@ -28,23 +28,23 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SpawnTerrainActors();
-	void SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log);
-	void SpawnDiamondSquareAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log);
-	void SpawnDelaunayAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log);
+	void SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log = true);
+	void SpawnDiamondSquareAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log = true);
+	void SpawnDelaunayAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector &StartLoc, bool log = true);
 
 	void SpawnPerlinNoiseTerrain(int Divisions, float Size, float Height, float Lacunarity, float Scale, float Persistance, FVector TerrainLoc);
 	void SpawnDiamondSquareTerrain(int Divisions, float Size, float Height, float Roughness, FVector TerrainLoc);
 	void SpawnDelaunayTerrain(int Divisions, float Size, float Height, float Lacunarity, float Scale, float Persistance, FVector TerrainLoc);
 
 	int Divisions = 8;
-	float Size = 100.0f;
-	float Height = 15.0f;
+	float Size = 300.0f;
+	float Height = 25.0f;
 	float Lacunarity = 0.5f;
 	float Persistance = 1.0f;
 	float Scale = 20.0f;
 	
 	//DiamondSquare
 	float Roughness = 0.4f;
-	FVector MoveInX = FVector(500, 0, 0);
-	FVector MoveInY = FVector(0, 500, 0);
+	FVector MoveInX = FVector(5*Size, 0, 0);
+	FVector MoveInY = FVector(0, 5*Size, 0);
 };

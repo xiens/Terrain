@@ -43,7 +43,6 @@ void ADelaunayTriangulation::OnConstruction(const FTransform & transform)
 	Points = (mDivisions + 1) * (mDivisions + 1);
 	meshData = meshGenerator->GenerateMeshForTriangulation(mDivisions, mSize);
 	GenerateTerrain2(mDivisions, mHeight, mSize, lacunarity, scale, persistance);
-
 }
 
 // This is called when actor is spawned
@@ -150,20 +149,24 @@ void ADelaunayTriangulation::CreateSmoothlyShadedQuad() {
 	//cloud[3] = Point2(-0.5f*Width, 0.5f*Height);
 	//cloud[2] = Point2(0.5f*Width, 0.5f*Height);
 	//cloud[4] = Point2(-0.5f*Width, -0.501f*Height);
+	Width = Height = mSize;
 
 	//gen some random input
 	for (int i = 0; i < Points; i++)
 	{
-		/*cloud[i].x = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
-		cloud[i].y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);*/
-		cloud[i].x = meshData->Vertices[i].X;
-		cloud[i].y = meshData->Vertices[i].Y;
+		cloud[i].x = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
+		//cloud[i].x = pn.noise(meshData->Vertices[i].X, meshData->Vertices[i].Y, 0.8)* Width;
+		cloud[i].y = FMath::FRandRange(-0.5f * Height, 0.5f * Height);
+		//cloud[i].y = pn.noise(meshData->Vertices[i].X, meshData->Vertices[i].Y, 0.8)* Height;
+		/*cloud[i].x = meshData->Vertices[i].X;
+		cloud[i].y = meshData->Vertices[i].Y;*/
 	}
 
 
 	//Use the 2D Delaunay Triangulation on the generated points
 	IDelaBella* idb = IDelaBella::Create();
 	int verts = idb->Triangulate(Points, &cloud->x, &cloud->y, sizeof(Point2));
+
 
 	std::vector<DelaBella_Triangle> triangles;
 	std::vector<DelaBella_Vertex> triangleVertices;  //All unique vertices of triangles
@@ -175,8 +178,8 @@ void ADelaunayTriangulation::CreateSmoothlyShadedQuad() {
 
 		for (int i = 0; i < TrianglesNum; i++)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
-				//, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)
+			/*UE_LOG(LogTemp, Warning, TEXT("v1= (%f, %f) v2= (%f, %f) v3= (%f, %f) "), dela->v[0]->x, dela->v[0]->y, dela->v[1]->x
+				, dela->v[1]->y, dela->v[2]->x, dela->v[2]->y)*/
 
 			triangles.push_back(*dela);
 			dela = dela->next;

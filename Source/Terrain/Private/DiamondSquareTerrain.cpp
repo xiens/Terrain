@@ -18,7 +18,7 @@ ADiamondSquareTerrain::ADiamondSquareTerrain()
 	meshGenerator = new MeshGenerator();
 
 	//meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
-	UE_LOG(LogTemp, Warning, TEXT("Constructor mDivisions: %d"), mDivisions);
+	//UE_LOG(LogTemp, Warning, TEXT("Constructor mDivisions: %d"), mDivisions);
 
 
 	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
@@ -36,7 +36,7 @@ ADiamondSquareTerrain::ADiamondSquareTerrain()
 void ADiamondSquareTerrain::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Beginplay mDivisions: %d"), mDivisions);
+	//UE_LOG(LogTemp, Warning, TEXT("Beginplay mDivisions: %d"), mDivisions);
 
 }
 
@@ -44,7 +44,7 @@ void ADiamondSquareTerrain::OnConstruction(const FTransform & transform)
 {
 	Super::OnConstruction(transform);
 
-	UE_LOG(LogTemp, Warning, TEXT("OnConstruction mDivisions: %d"), mDivisions);
+	//UE_LOG(LogTemp, Warning, TEXT("OnConstruction mDivisions: %d"), mDivisions);
 	mVertCount = (mDivisions + 1) * (mDivisions + 1);
 	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
 	GenerateTerrain2(mDivisions, mHeight, mSize, mRoughness);
@@ -158,7 +158,7 @@ void ADiamondSquareTerrain::SetTerrainParams(int Divisions, float Height, float 
 	mHeight = Height;
 	mSize = Size;
 	mRoughness = Roughness;
-	UE_LOG(LogTemp, Warning, TEXT("SetTerrainParams mDivisions: %d"), mDivisions);
+	//UE_LOG(LogTemp, Warning, TEXT("SetTerrainParams mDivisions: %d"), mDivisions);
 }
 
 void ADiamondSquareTerrain::DiamondSquare(int row, int col, int size, float offset)

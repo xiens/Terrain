@@ -61,13 +61,13 @@ void ATerrainSpawner::SpawnTerrainActors() {
 	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation);
 	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
 	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
-	//UE_LOG(LogTemp, Warning, TEXT(" divisions: %d"), Divisions)
+	////UE_LOG(LogTemp, Warning, TEXT(" divisions: %d"), Divisions)
 	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
 	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
-	SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
+	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
 
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
-	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Roughness", 0.2f, CurrentLocation);
+	SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Roughness", 0.2f, CurrentLocation);
 
 		//UE_LOG(LogTemp, Warning, TEXT("Mesh generation time: %f"), MeshGenerationTime);
 
@@ -176,6 +176,7 @@ void ATerrainSpawner::SpawnDelaunayAtLocation(int TerrainSamplesNum, FString Par
 		else if (ParameterToChange == "Divisions") {
 			Parameter = Divisions;
 			SpawnDelaunayTerrain(Parameter + i * ChangeRate, Size, Height, Lacunarity, Scale, Persistance, Location);
+			//Divisions *= 2;
 			if (log) UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain number of vertices = %.0f"), ((Parameter + i * ChangeRate) + 1)*((Parameter + i * ChangeRate) + 1))
 		}
 		Location += MoveInX;
