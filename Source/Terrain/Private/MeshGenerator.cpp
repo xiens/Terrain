@@ -58,7 +58,7 @@ MeshData * MeshGenerator::GenerateMeshForTriangulation(int mDivisions, int mSize
 		for (int y = 0; y <= mDivisions; y++)
 		{
 			meshData->Vertices[x * (mDivisions + 1) + y] = FVector(-halfSize + y * divisionSize, halfSize - x * divisionSize, 0.0f);
-			meshData->UV0[x * (mDivisions + 1) + y] = FVector2D((float)x / mDivisions, (float)y / mDivisions);
+			//meshData->UV0[x * (mDivisions + 1) + y] = FVector2D((float)x / mDivisions, (float)y / mDivisions);
 		}
 	}
 

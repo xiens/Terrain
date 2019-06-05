@@ -62,14 +62,24 @@ void ATerrainSpawner::SpawnTerrainActors() {
 	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
 	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
 	////UE_LOG(LogTemp, Warning, TEXT(" divisions: %d"), Divisions)
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
-	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
+	/*SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);*/
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
 
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
-	SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Roughness", 0.2f, CurrentLocation);
+	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Roughness", 0.2f, CurrentLocation);
 
 		//UE_LOG(LogTemp, Warning, TEXT("Mesh generation time: %f"), MeshGenerationTime);
+
+
+	//PERLIN NOISE TESTS
+	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation);
+	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation);
+	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation);
+	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Height", 5.0f, CurrentLocation);
+	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Scale", 10.0f, CurrentLocation);
+
+
 
 }
 
@@ -110,6 +120,7 @@ void ATerrainSpawner::SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString 
 		Location += MoveInX;
 	}
 	StartLoc += MoveInY;
+	if (log) UE_LOG(LogTemp, Warning, TEXT(""))
 }
 
 void ATerrainSpawner::SpawnDiamondSquareAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector & StartLoc, bool log)
@@ -142,6 +153,7 @@ void ATerrainSpawner::SpawnDiamondSquareAtLocation(int TerrainSamplesNum, FStrin
 		Location += MoveInX;
 	}
 	StartLoc += MoveInY;
+	if (log) UE_LOG(LogTemp, Warning, TEXT(""))
 }
 
 void ATerrainSpawner::SpawnDelaunayAtLocation(int TerrainSamplesNum, FString ParameterToChange, float ChangeRate, FVector & StartLoc, bool log)
@@ -182,6 +194,7 @@ void ATerrainSpawner::SpawnDelaunayAtLocation(int TerrainSamplesNum, FString Par
 		Location += MoveInX;
 	}
 	StartLoc += MoveInY;
+	if (log) UE_LOG(LogTemp, Warning, TEXT(""))
 }
 
 void ATerrainSpawner::SpawnPerlinNoiseTerrain(int Divisions, float Size, float Height, float Lacunarity, float Scale, float Persistance, FVector TerrainLoc)

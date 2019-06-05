@@ -40,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	int mDivisions = 8; //number of faces 
 	UPROPERTY(EditAnywhere)
-	float mSize = 100;
+	float mSize = 300;
 	//float size = 5;
 	//int gridSize = 10;
 	float maxNoiseHeight = 10000;
@@ -106,4 +106,5 @@ private:
 
 	void TestDelaunay3D();
 
+	FVector2D CalculateUV(FVector Vertices);
 };

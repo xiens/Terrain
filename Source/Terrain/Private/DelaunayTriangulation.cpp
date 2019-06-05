@@ -21,7 +21,9 @@ ADelaunayTriangulation::ADelaunayTriangulation()
 	mesh->bUseAsyncCooking = true;
 	meshGenerator = new MeshGenerator();
 
-	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_AssetPlatform.M_AssetPlatform'"));
+	//static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_AssetPlatform.M_AssetPlatform'"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
+
 	if (ConcreteMaterialAsset.Succeeded())
 	{
 		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
@@ -202,28 +204,28 @@ void ADelaunayTriangulation::CreateSmoothlyShadedQuad() {
 	{
 		Vertices.Add(FVector(triangleVertices[i].x, triangleVertices[i].y, 0));
 		Normals.Add(FVector(1, 0, 0));
-		float mid = (Width + Height) / 2.0f;
-		UV0.Add(FVector2D(i*(mid /100.0f)/triangleVertices.size(), i*(mid / 100.0f)/triangleVertices.size()));
-		//UE_LOG(LogTemp, Warning, TEXT("uv: (%s)"), *UV0[i].ToString())
-
 		Tangents.Add(FProcMeshTangent(0, 1, 0));
 		VertexColors.Add(FLinearColor(1, 0, 0, 1.0));
 	}
-	//float size = FMath::Sqrt(triangleVertices.size());
-	//for (int x = 0; x < size; x++)
-	//{
-	//	for (int y = 0; y < size; y++)
-	//	{
-	//		UV0[x*size + y] = FVector2D(x / (size - 1), y / (size - 1));
-	//	}
-	//}
-	//for (size_t i = 0; i < triangleVertices.size(); i++) {
-	//	//UE_LOG(LogTemp, Warning, TEXT("uv: (%s)"), *UV0[i].ToString())
-	//}
 
+
+	for (size_t i = 0; i < triangleVertices.size(); i++) {
+		UV0[i] = CalculateUV(Vertices[i]);
+	}
 
 	delete[] cloud;
 	idb->Destroy();
+}
+
+FVector2D ADelaunayTriangulation::CalculateUV(FVector Vertices)
+{
+	FVector2D UV;
+
+	float halfSize = mSize / 2;
+
+	UV = FVector2D(1 - (Vertices.Y + halfSize) / mSize, (Vertices.X + halfSize) / mSize);
+
+	return UV;
 }
 
 void ADelaunayTriangulation::GenerateTerrain() {
@@ -333,9 +335,9 @@ void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, flo
 		j++;
 	}
 
-	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, meshData->UV0, VertexColors, Tangents, true);
+	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, /*meshData->*/UV0, VertexColors, Tangents, true);
 
-	//// Enable collision data
+	////// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
 
 	double end = FPlatformTime::Seconds();
@@ -343,6 +345,8 @@ void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, flo
 
 	UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain generation time: %f"), TimeElapsed);
 }
+
+
 
 void ADelaunayTriangulation::SetTerrainParams(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance)
 {
@@ -484,6 +488,8 @@ void ADelaunayTriangulation::TestDelaunay3D()
 		
 
 }
+
+
 
 void ADelaunayTriangulation::GenerateTerrainForTriangulation()
 {
