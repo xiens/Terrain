@@ -43,8 +43,13 @@ void ADelaunayTriangulation::OnConstruction(const FTransform & transform)
 	Super::OnConstruction(transform);
 
 	Points = (mDivisions + 1) * (mDivisions + 1);
-	meshData = meshGenerator->GenerateMeshForTriangulation(mDivisions, mSize);
+	//meshData = meshGenerator->GenerateMeshForTriangulation(mDivisions, mSize);
+	double start = FPlatformTime::Seconds();
 	GenerateTerrain2(mDivisions, mHeight, mSize, lacunarity, scale, persistance);
+	double end = FPlatformTime::Seconds();
+	double TimeElapsed = end - start;
+
+	UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain generation time: %f"), TimeElapsed);
 }
 
 // This is called when actor is spawned
@@ -169,7 +174,8 @@ void ADelaunayTriangulation::CreateSmoothlyShadedQuad() {
 	IDelaBella* idb = IDelaBella::Create();
 	int verts = idb->Triangulate(Points, &cloud->x, &cloud->y, sizeof(Point2));
 
-
+	UE_LOG(LogTemp, Warning, TEXT("Number of vertices after triangulation: %d"), verts);
+	UE_LOG(LogTemp, Warning, TEXT("Number of triangles after triangulation: %d"), verts/3);
 	std::vector<DelaBella_Triangle> triangles;
 	std::vector<DelaBella_Vertex> triangleVertices;  //All unique vertices of triangles
 
@@ -282,15 +288,15 @@ void ADelaunayTriangulation::GenerateTerrain() {
 
 void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance)
 {
-	double start = FPlatformTime::Seconds();
+
 
 	CreateSmoothlyShadedQuad();
 
-	mHeight = Height;
-	mSize = Size;
-	lacunarity = Lacunarity;
-	scale = Scale;
-	persistance = Persistance;
+	//mHeight = Height;
+	//mSize = Size;
+	//lacunarity = Lacunarity;
+	//scale = Scale;
+	//persistance = Persistance;
 	
 
 	PerlinNoise pn(seed);
@@ -340,10 +346,7 @@ void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, flo
 	////// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
 
-	double end = FPlatformTime::Seconds();
-	double TimeElapsed = end - start;
 
-	UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain generation time: %f"), TimeElapsed);
 }
 
 

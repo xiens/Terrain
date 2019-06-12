@@ -36,15 +36,19 @@ public:
 	void SpawnDiamondSquareTerrain(int Divisions, float Size, float Height, float Roughness, FVector TerrainLoc);
 	void SpawnDelaunayTerrain(int Divisions, float Size, float Height, float Lacunarity, float Scale, float Persistance, FVector TerrainLoc);
 
-	int Divisions = 8;
-	float Size = 300.0f;
-	float Height = 25.0f;
+	int Divisions = 128;
+	float Size = 200.0f;
+	float Height = 35.0f;
+
+	//PerlinNoise
 	float Lacunarity = 0.5f;
 	float Persistance = 1.0f;
-	float Scale = 20.0f;
+	float Scale = 27.0f;
 	
 	//DiamondSquare
-	float Roughness = 0.4f;
-	FVector MoveInX = FVector(5*Size, 0, 0);
-	FVector MoveInY = FVector(0, 5*Size, 0);
+	float Roughness = 0.55f;
+
+
+	FVector MoveInX = FVector(10* Size, 0, 0);
+	FVector MoveInY = FVector(0, 10* Size, 0);
 };

@@ -46,8 +46,16 @@ void ADiamondSquareTerrain::OnConstruction(const FTransform & transform)
 
 	//UE_LOG(LogTemp, Warning, TEXT("OnConstruction mDivisions: %d"), mDivisions);
 	mVertCount = (mDivisions + 1) * (mDivisions + 1);
+
+	double start = FPlatformTime::Seconds();
+
 	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
 	GenerateTerrain2(mDivisions, mHeight, mSize, mRoughness);
+
+	double end = FPlatformTime::Seconds();
+	double TimeElapsed = end - start;
+
+	UE_LOG(LogTemp, Warning, TEXT("Diamond Square Terrain generation time: %f"), TimeElapsed);
 	//GenerateTerrain();
 }
 
@@ -109,6 +117,7 @@ void ADiamondSquareTerrain::GenerateTerrain()
 
 void ADiamondSquareTerrain::GenerateTerrain2(int Divisions, float Height, float Size, float Roughness)
 {
+
 	//mDivisions = Divisions;
 	//mHeight = Height;
 	//mRoughness = Roughness;
@@ -148,6 +157,8 @@ void ADiamondSquareTerrain::GenerateTerrain2(int Divisions, float Height, float 
 
 	// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
+
+
 }
 
 void ADiamondSquareTerrain::SetTerrainParams(int Divisions, float Height, float Size, float Roughness)

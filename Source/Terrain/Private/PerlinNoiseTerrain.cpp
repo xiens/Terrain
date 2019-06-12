@@ -46,8 +46,15 @@ void APerlinNoiseTerrain::OnConstruction(const FTransform & transform)
 	Super::OnConstruction(transform);
 
 	mVertCount = (mDivisions + 1) * (mDivisions + 1);
+	double start = FPlatformTime::Seconds();
+
 	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
 	GenerateTerrain2(mDivisions, mHeight, mSize, lacunarity, scale, persistance);
+
+	double end = FPlatformTime::Seconds();
+	double TimeElapsed = end - start;
+
+	UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain generation time: %f"), TimeElapsed + meshGenerator->MeshGenerationTime);
 }
 
 // Called every frame
@@ -72,6 +79,10 @@ void APerlinNoiseTerrain::PostLoad()
 
 void APerlinNoiseTerrain::GenerateTerrain()
 {
+
+
+
+
 	PerlinNoise pn(seed);
 	FVector2D *octaveOffsets = new FVector2D[octaves];
 	for (int octave = 0; octave < octaves; octave++)
@@ -124,14 +135,20 @@ void APerlinNoiseTerrain::GenerateTerrain()
 
 void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance)
 {
-	double start = FPlatformTime::Seconds();
+	TArray <FVector> temp;
+	//temp.AddZeroed(meshData->Vertices.Num());
 
-	mDivisions = Divisions;
-	scale = Scale;
-	lacunarity = Lacunarity;
-	mHeight = Height;
-	mSize = Size;
-	persistance = Persistance;
+	for (size_t i = 0; i < meshData->Vertices.Num(); i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Meshdata vertices: %s"), *(meshData->Vertices[i]).ToString())
+		temp.Add(meshData->Vertices[i]);
+	}
+	//mDivisions = Divisions;
+	//scale = Scale;
+	//lacunarity = Lacunarity;
+	//mHeight = Height;
+	//mSize = Size;
+	//persistance = Persistance;
 	
 
 
@@ -156,8 +173,8 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float 
 
 		for (int octave = 0; octave < octaves; octave++)
 		{
-			float xCoord = meshData->Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
-			float yCoord = meshData->Vertices[i].Y  * scale * frequency + octaveOffsets[octave].Y;
+			float xCoord = temp[i].X  * scale * frequency + octaveOffsets[octave].X;
+			float yCoord = temp[i].Y  * scale * frequency + octaveOffsets[octave].Y;
 
 			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
 
@@ -175,20 +192,25 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float 
 			minNoiseHeight = noiseHeight;
 		}
 
-		meshData->Vertices[j].Z = PerlinValue;
+		temp[j].Z = PerlinValue;
 		j++;
 	}
 
-	mesh->CreateMeshSection_LinearColor(0, meshData->Vertices, meshData->Triangles, meshData->Normals,
+	//mesh->CreateMeshSection_LinearColor(0, temp, meshData->Triangles, meshData->Normals,
+	//	meshData->UV0, meshData->VertexColors, meshData->Tangents, true);
+
+	for (size_t i = 0; i < meshData->Vertices.Num(); i++)
+	{
+		temp.Add(meshData->Vertices[i] += FVector(100.0f, 0, 0));
+	}
+
+	mesh->CreateMeshSection_LinearColor(1, temp, meshData->Triangles, meshData->Normals,
 		meshData->UV0, meshData->VertexColors, meshData->Tangents, true);
 
 	//// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);
 
-	double end = FPlatformTime::Seconds();
-	double TimeElapsed = end - start;
 
-	UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain generation time: %f"), TimeElapsed + meshGenerator->MeshGenerationTime);
 
 	delete meshData;
 }

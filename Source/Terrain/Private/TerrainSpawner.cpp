@@ -36,7 +36,7 @@ void ATerrainSpawner::Tick(float DeltaTime)
 
 void ATerrainSpawner::SpawnTerrainActors() {
 
-	int TerrainSamplesNum = 5;
+	int TerrainSamplesNum = 1;
 	float ChangeRate = 10.0f;
 
 	//Starting parameters:
@@ -62,9 +62,7 @@ void ATerrainSpawner::SpawnTerrainActors() {
 	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
 	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
 	////UE_LOG(LogTemp, Warning, TEXT(" divisions: %d"), Divisions)
-	/*SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
-	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);*/
-	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation, true);
+
 
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Roughness", 0.2f, CurrentLocation);
@@ -73,11 +71,32 @@ void ATerrainSpawner::SpawnTerrainActors() {
 
 
 	//PERLIN NOISE TESTS
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation);
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation);
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation);
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Height", 5.0f, CurrentLocation);
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Scale", 10.0f, CurrentLocation);
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 5, CurrentLocation);
+	//Divisions = StartDivisions;
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Lacunarity", 0.2f, CurrentLocation);
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Persistance", -0.2f, CurrentLocation);
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Height", 5.0f, CurrentLocation);
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Scale", 10.0f, CurrentLocation);
+
+
+	//DIAMOND SQUARE TESTS
+	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Roughness", -0.2f, CurrentLocation);
+
+
+	//DELAUNAY TRIANGULATION TESTS
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation);
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation);
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Scale", ChangeRate, CurrentLocation);
+	/*SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 4, CurrentLocation, true);
+	Divisions = StartDivisions;*/
+
+	//SPAWN TIME TESTS
+	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
+	Divisions = StartDivisions;
+	/*SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
+	Divisions = StartDivisions;
+	SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);*/
 
 
 
@@ -109,13 +128,17 @@ void ATerrainSpawner::SpawnPerlinNoiseAtLocation(int TerrainSamplesNum, FString 
 		}
 		else if (ParameterToChange == "Scale") {
 			Parameter = Scale;
-			SpawnPerlinNoiseTerrain(Divisions, Size, Height, Lacunarity, Parameter + i * ChangeRate, Persistance, Location);
-			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain scale = %f"), Parameter + i * ChangeRate)
+			SpawnPerlinNoiseTerrain(Divisions, Size, Height, Lacunarity, Parameter, Persistance, Location);
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain scale = %f"), Parameter)
+				Scale /= 5.0f;
 		}
 		else if (ParameterToChange == "Divisions") {
 			Parameter = Divisions;
-			SpawnPerlinNoiseTerrain(Parameter + i * ChangeRate, Size, Height, Lacunarity, Scale, Persistance, Location);
-			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain number of vertices = %.0f"), ((Parameter + i * ChangeRate)+1)*((Parameter + i * ChangeRate) + 1))
+			SpawnPerlinNoiseTerrain(Divisions, Size, Height, Lacunarity, Scale, Persistance, Location);
+			if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain number of vertices = %.0f"), (Parameter + 1)*(Parameter + 1))
+			Divisions *= 2;
+
+			//if (log) UE_LOG(LogTemp, Warning, TEXT("Perlin Noise Terrain number of vertices = %.0f"), ((Parameter + i * ChangeRate)+1)*((Parameter + i * ChangeRate) + 1))
 		}
 		Location += MoveInX;
 	}
@@ -144,8 +167,8 @@ void ATerrainSpawner::SpawnDiamondSquareAtLocation(int TerrainSamplesNum, FStrin
 		}
 		else if (ParameterToChange == "Divisions") {
 			Parameter = Divisions;
-			if (log) UE_LOG(LogTemp, Warning, TEXT("Diamond Square Terrain number of divisions = %d"), Parameter)
-			SpawnDiamondSquareTerrain(Parameter/* + i * ChangeRate*/, Size, Height, Roughness, Location);
+			SpawnDiamondSquareTerrain(Divisions, Size, Height, Roughness, Location);
+			//if (log) UE_LOG(LogTemp, Warning, TEXT("Diamond Square Terrain number of vertices = %.0f"), (Parameter+1)*(Parameter+1))
 			Divisions *= 2;
 
 		}
@@ -187,9 +210,10 @@ void ATerrainSpawner::SpawnDelaunayAtLocation(int TerrainSamplesNum, FString Par
 		}
 		else if (ParameterToChange == "Divisions") {
 			Parameter = Divisions;
-			SpawnDelaunayTerrain(Parameter + i * ChangeRate, Size, Height, Lacunarity, Scale, Persistance, Location);
-			//Divisions *= 2;
-			if (log) UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain number of vertices = %.0f"), ((Parameter + i * ChangeRate) + 1)*((Parameter + i * ChangeRate) + 1))
+			SpawnDelaunayTerrain(Divisions, Size, Height, Lacunarity, Scale, Persistance, Location);
+			//if (log) UE_LOG(LogTemp, Warning, TEXT("Delaunay Triangulation Terrain number of vertices = %.0f"), (Parameter + 1)*(Parameter + 1))
+				if(log) UE_LOG(LogTemp, Warning, TEXT("Divisions: %d "), Divisions)
+			Divisions *= 2;
 		}
 		Location += MoveInX;
 	}
