@@ -67,7 +67,7 @@ void ATerrainSpawner::SpawnTerrainActors() {
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Height", ChangeRate, CurrentLocation);
 	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Roughness", 0.2f, CurrentLocation);
 
-		//UE_LOG(LogTemp, Warning, TEXT("Mesh generation time: %f"), MeshGenerationTime);
+	//UE_LOG(LogTemp, Warning, TEXT("Mesh generation time: %f"), MeshGenerationTime);
 
 
 	//PERLIN NOISE TESTS
@@ -91,14 +91,36 @@ void ATerrainSpawner::SpawnTerrainActors() {
 	/*SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 4, CurrentLocation, true);
 	Divisions = StartDivisions;*/
 
-	//SPAWN TIME TESTS
-	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
-	Divisions = StartDivisions;
-	/*SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
-	Divisions = StartDivisions;
-	SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);*/
+	////FLAT
+	//SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation, true);
 
+	//Divisions = StartDivisions;
+	//Divisions = 256;
+	//Height = 45;
+	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
 
+	//Divisions = 128;
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
+
+	////MOUNTAIN
+	Height = 300;
+	Divisions = 256;
+	Scale = 4.0f;
+	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation, true);
+	Divisions = 256;
+
+	//Height = 180;
+	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
+
+	//Height = 300;
+	//Divisions = 128;
+	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
+
+	//big terrain
+	/*Divisions = 256;
+	Size = 1000.0f;
+	Height = 125.0f;
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);*/
 
 }
 

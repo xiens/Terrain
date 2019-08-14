@@ -9,6 +9,7 @@
 #include "CoreUObject/Public/UObject/Class.h"
 #include "Classes/Materials/MaterialInstanceDynamic.h"
 #include "GameFramework/PlayerController.h"
+#include "TerrainType.h"
 
 // Sets default values
 APerlinNoiseTerrain::APerlinNoiseTerrain()
@@ -21,16 +22,11 @@ APerlinNoiseTerrain::APerlinNoiseTerrain()
 	PrimaryActorTick.bCanEverTick = true;
 
 	meshGenerator = new MeshGenerator();
+	terrainType = new TerrainType();
+	if(terrainType)
+		terrainType->SetMeshMaterial(mesh);
 
-	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
-	if (ConcreteMaterialAsset.Succeeded())
-	{
-		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
-		mesh->SetMaterial(0, MaterialInstance);
-	}
-	mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
-
-	
+	//mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
 }
 
 // Called when the game starts or when spawned
@@ -41,6 +37,8 @@ void APerlinNoiseTerrain::BeginPlay()
 	//TODO Generate bigger terrain with more vertices and measure time for each generation
 }
 
+
+
 void APerlinNoiseTerrain::OnConstruction(const FTransform & transform)
 {
 	Super::OnConstruction(transform);
@@ -48,7 +46,10 @@ void APerlinNoiseTerrain::OnConstruction(const FTransform & transform)
 	mVertCount = (mDivisions + 1) * (mDivisions + 1);
 	double start = FPlatformTime::Seconds();
 
-	meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
+	if(meshGenerator)
+		meshData = meshGenerator->GenerateMesh(mDivisions, mSize);
+	
+	
 	GenerateTerrain2(mDivisions, mHeight, mSize, lacunarity, scale, persistance);
 
 	double end = FPlatformTime::Seconds();
@@ -138,19 +139,23 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float 
 	TArray <FVector> temp;
 	//temp.AddZeroed(meshData->Vertices.Num());
 
-	for (size_t i = 0; i < meshData->Vertices.Num(); i++)
+	/*for (size_t i = 0; i < meshData->Vertices.Num(); i++)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Meshdata vertices: %s"), *(meshData->Vertices[i]).ToString())
 		temp.Add(meshData->Vertices[i]);
-	}
+	}*/
 	//mDivisions = Divisions;
 	//scale = Scale;
 	//lacunarity = Lacunarity;
 	//mHeight = Height;
 	//mSize = Size;
 	//persistance = Persistance;
-	
 
+
+	for (size_t i = 0; i < meshData->Vertices.Num(); i++)
+	{
+		temp.Add(meshData->Vertices[i]);
+	}
 
 	PerlinNoise pn(seed);
 
@@ -195,17 +200,15 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float 
 		temp[j].Z = PerlinValue;
 		j++;
 	}
-
-	//mesh->CreateMeshSection_LinearColor(0, temp, meshData->Triangles, meshData->Normals,
-	//	meshData->UV0, meshData->VertexColors, meshData->Tangents, true);
-
-	for (size_t i = 0; i < meshData->Vertices.Num(); i++)
-	{
-		temp.Add(meshData->Vertices[i] += FVector(100.0f, 0, 0));
+	TArray<float> VertHeights;
+	for (auto &vert : temp) {
+		VertHeights.Add(vert.Z);
 	}
+	meshData->VertexColors = terrainType->AssignRegionToHeights(meshData->VertexColors, VertHeights);
 
-	mesh->CreateMeshSection_LinearColor(1, temp, meshData->Triangles, meshData->Normals,
+	mesh->CreateMeshSection_LinearColor(0, temp, meshData->Triangles, meshData->Normals,
 		meshData->UV0, meshData->VertexColors, meshData->Tangents, true);
+	
 
 	//// Enable collision data
 	mesh->ContainsPhysicsTriMeshData(true);

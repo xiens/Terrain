@@ -28,7 +28,7 @@ ADiamondSquareTerrain::ADiamondSquareTerrain()
 		mesh->SetMaterial(0, MaterialInstance);
 	}
 
-	mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
+	//mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
 
 }
 

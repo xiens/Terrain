@@ -29,7 +29,7 @@ ADelaunayTriangulation::ADelaunayTriangulation()
 		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
 		mesh->SetMaterial(0, MaterialInstance);
 	}
-	mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
+	//mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
 }
 
 // Called when the game starts or when spawned
@@ -151,15 +151,15 @@ void ADelaunayTriangulation::CreateSmoothlyShadedQuad() {
 	//if (Points < 5) return;
 
 	////Create the corners of quad
-	//cloud[0] = Point2(-0.5f*Width, -0.5f*Height);
-	//cloud[1] = Point2(0.5f*Width, -0.5f*Height);
-	//cloud[3] = Point2(-0.5f*Width, 0.5f*Height);
-	//cloud[2] = Point2(0.5f*Width, 0.5f*Height);
-	//cloud[4] = Point2(-0.5f*Width, -0.501f*Height);
+	cloud[0] = Point2(-0.5f*Width, -0.5f*Height);
+	cloud[1] = Point2(0.5f*Width, -0.5f*Height);
+	cloud[3] = Point2(-0.5f*Width, 0.5f*Height);
+	cloud[2] = Point2(0.5f*Width, 0.5f*Height);
+	cloud[4] = Point2(-0.5f*Width, -0.501f*Height);
 	Width = Height = mSize;
 
 	//gen some random input
-	for (int i = 0; i < Points; i++)
+	for (int i = 5; i < Points; i++)
 	{
 		cloud[i].x = FMath::FRandRange(-0.5f * Width, 0.5f * Width);
 		//cloud[i].x = pn.noise(meshData->Vertices[i].X, meshData->Vertices[i].Y, 0.8)* Width;

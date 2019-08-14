@@ -10,6 +10,7 @@
 class PerlinNoise;
 class MeshGenerator;
 class MeshData;
+class TerrainType;
 
 UCLASS()
 class TERRAIN_API APerlinNoiseTerrain : public AActor
@@ -65,7 +66,8 @@ private:
 	//Mesh components
 	MeshGenerator * meshGenerator = NULL;
 	MeshData * meshData = NULL;
-
+	TerrainType * terrainType = NULL;
+	
 	void PostActorCreated();
 	void PostLoad();
 	

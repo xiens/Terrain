@@ -20,5 +20,7 @@ public:
 
 	MeshData * GenerateMesh(int mDivisions, int mSize);
 
+	MeshData * GenerateMesh2(int mDivisions, int mSize, int offset);
+
 	MeshData * GenerateMeshForTriangulation(int mDivisions, int mSize);
 };
