@@ -10,6 +10,7 @@
 #include "CoreUObject/Public/UObject/ConstructorHelpers.h"
 #include "CoreUObject/Public/UObject/Class.h"
 #include "Classes/Materials/MaterialInstanceDynamic.h"
+#include "TerrainType.h"
 
 
 // Sets default values
@@ -20,15 +21,18 @@ ADelaunayTriangulation::ADelaunayTriangulation()
 	// New in UE 4.17, multi-threaded PhysX cooking.
 	mesh->bUseAsyncCooking = true;
 	meshGenerator = new MeshGenerator();
+	terrainType = new TerrainType();
+	if (terrainType)
+		terrainType->SetMeshMaterial(mesh);
 
 	//static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_AssetPlatform.M_AssetPlatform'"));
-	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
+	//static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured'"));
 
-	if (ConcreteMaterialAsset.Succeeded())
-	{
-		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
-		mesh->SetMaterial(0, MaterialInstance);
-	}
+	//if (ConcreteMaterialAsset.Succeeded())
+	//{
+	//	auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
+	//	mesh->SetMaterial(0, MaterialInstance);
+	//}
 	//mesh->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
 }
 
@@ -55,6 +59,7 @@ void ADelaunayTriangulation::OnConstruction(const FTransform & transform)
 // This is called when actor is spawned
 void ADelaunayTriangulation::PostActorCreated() {
 	Super::PostActorConstruction();
+
 	/*double start = FPlatformTime::Seconds();
 	CreateQuad();
 	GenerateTerrain();
@@ -174,8 +179,8 @@ void ADelaunayTriangulation::CreateSmoothlyShadedQuad() {
 	IDelaBella* idb = IDelaBella::Create();
 	int verts = idb->Triangulate(Points, &cloud->x, &cloud->y, sizeof(Point2));
 
-	UE_LOG(LogTemp, Warning, TEXT("Number of vertices after triangulation: %d"), verts);
-	UE_LOG(LogTemp, Warning, TEXT("Number of triangles after triangulation: %d"), verts/3);
+	//UE_LOG(LogTemp, Warning, TEXT("Number of vertices after triangulation: %d"), verts);
+	//UE_LOG(LogTemp, Warning, TEXT("Number of triangles after triangulation: %d"), verts/3);
 	std::vector<DelaBella_Triangle> triangles;
 	std::vector<DelaBella_Vertex> triangleVertices;  //All unique vertices of triangles
 
@@ -288,8 +293,6 @@ void ADelaunayTriangulation::GenerateTerrain() {
 
 void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, float Size, float Lacunarity, float Scale, float Persistance)
 {
-
-
 	CreateSmoothlyShadedQuad();
 
 	//mHeight = Height;
@@ -297,7 +300,6 @@ void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, flo
 	//lacunarity = Lacunarity;
 	//scale = Scale;
 	//persistance = Persistance;
-	
 
 	PerlinNoise pn(seed);
 	FVector2D *octaveOffsets = new FVector2D[octaves];
@@ -319,7 +321,7 @@ void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, flo
 
 		for (int octave = 0; octave < octaves; octave++)
 		{
-			float xCoord = Vertices[i].X  * scale * frequency + octaveOffsets[octave].X;
+			float xCoord = Vertices[i].X * scale  * frequency + octaveOffsets[octave].X;
 			float yCoord = Vertices[i].Y * scale  * frequency + octaveOffsets[octave].Y;
 
 			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
@@ -340,6 +342,11 @@ void ADelaunayTriangulation::GenerateTerrain2(float Divisions, float Height, flo
 		Vertices[j].Z = PerlinValue;
 		j++;
 	}
+	TArray<float> VertHeights;
+	for (auto &vert : Vertices) {
+		VertHeights.Add(vert.Z);
+	}
+	VertexColors = terrainType->AssignRegionToHeights(VertexColors, VertHeights);
 
 	mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, /*meshData->*/UV0, VertexColors, Tangents, true);
 

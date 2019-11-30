@@ -181,7 +181,7 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float 
 			float xCoord = temp[i].X  * scale * frequency + octaveOffsets[octave].X;
 			float yCoord = temp[i].Y  * scale * frequency + octaveOffsets[octave].Y;
 
-			PerlinValue = pn.noise(xCoord, yCoord, 0.8)* mHeight;
+			PerlinValue = pn.noise(xCoord, yCoord, 0.8);//* mHeight;
 
 			noiseHeight += PerlinValue * amplitude;
 			amplitude *= persistance; //decreases each octave
@@ -197,8 +197,17 @@ void APerlinNoiseTerrain::GenerateTerrain2(float Divisions, float Height, float 
 			minNoiseHeight = noiseHeight;
 		}
 
-		temp[j].Z = PerlinValue;
+		//if (noiseHeight > maxNoiseHeight) PerlinValue = maxNoiseHeight;
+		//if (noiseHeight < minNoiseHeight) PerlinValue = minNoiseHeight;
+
+		temp[j].Z = noiseHeight;
 		j++;
+	}
+
+	for (int i = 0; i < mVertCount; i++)
+	{
+
+		temp[i].Z = FMath::GetMappedRangeValueUnclamped(FVector2D(minNoiseHeight, 0), FVector2D(maxNoiseHeight, 0), temp[i].Z)*mHeight;
 	}
 	TArray<float> VertHeights;
 	for (auto &vert : temp) {

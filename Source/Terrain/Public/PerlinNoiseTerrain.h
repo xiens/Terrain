@@ -45,7 +45,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Noise parameters", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float persistance = 1; //Should be from 0 to 1
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")
-	float lacunarity = 2.0f;
+	float lacunarity = 1.0f;
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")
 	FVector2D offset = FVector2D(0, 0);
 	UPROPERTY(EditAnywhere, Category = "Noise parameters")

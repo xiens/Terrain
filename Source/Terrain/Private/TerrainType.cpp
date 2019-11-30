@@ -8,12 +8,14 @@
 
 TerrainType::TerrainType()
 {
-	TerrainRegion water = TerrainRegion("water", 0.25f, FLinearColor(0, 0, 1.0f, 1.0f));
-	TerrainRegion sand = TerrainRegion("sand", 0.45f, FLinearColor(1.0f, 0, 0, 1.0f));
-	TerrainRegion mountain = TerrainRegion("mountain", 0.6f, FLinearColor(0.5f, 0.5f, 0.5f, 1.0f));
-	TerrainRegions.Add(water);
-	TerrainRegions.Add(sand);
+	TerrainRegion water = TerrainRegion("water", 0.33f, FLinearColor(0.2f, 0.7f, 0.92f, 1.0f));
+	TerrainRegion sand = TerrainRegion("sand", 0.54f, FLinearColor(0.94f, 0.7f, 0.17f, 1.0f));
+	TerrainRegion mountain = TerrainRegion("mountain", 1.0f, FLinearColor(0.5f, 0.5f, 0.5f, 1.0f));
+	
+	
 	TerrainRegions.Add(mountain);
+	TerrainRegions.Add(sand);
+	TerrainRegions.Add(water);
 }
 
 TerrainType::~TerrainType()
@@ -23,11 +25,13 @@ TerrainType::~TerrainType()
 
 void TerrainType::SetMeshMaterial(UProceduralMeshComponent * mesh) {
 
-	static ConstructorHelpers::FObjectFinder<UMaterial> ConcreteMaterialAsset(TEXT("Material'/Game/Materials/MyMat.MyMat'"));
-	if (ConcreteMaterialAsset.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UMaterial> MyMatAsset(TEXT("Material'/Game/Materials/MyMat.MyMat'"));
+	if (MyMatAsset.Succeeded())
 	{
-		auto* MaterialInstance = UMaterialInstanceDynamic::Create(ConcreteMaterialAsset.Object, ConcreteMaterialAsset.Object);
-		if(mesh) mesh->SetMaterial(0, MaterialInstance);
+		auto* MaterialInstance = UMaterialInstanceDynamic::Create(MyMatAsset.Object, MyMatAsset.Object);
+		if (mesh) {
+			mesh->SetMaterial(0, MaterialInstance);
+		}
 		else {
 			UE_LOG(LogTemp, Warning, TEXT("no mesh instance"))
 		}
@@ -45,20 +49,16 @@ TArray<FLinearColor> TerrainType::AssignRegionToHeights(const TArray<FLinearColo
 		if (VerticesHeights[i] > MaxHeightMultiplier) MaxHeightMultiplier = VerticesHeights[i];
 		if (VerticesHeights[i] < MinHeightMultiplier) MinHeightMultiplier = VerticesHeights[i];
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Max height: %f Min height: %f"), MaxHeightMultiplier, MinHeightMultiplier)
-
-
+	//UE_LOG(LogTemp, Warning, TEXT("Max height: %f Min height: %f"), MaxHeightMultiplier, MinHeightMultiplier)
 
 	for (size_t i = 0; i < VerticesHeights.Num(); i++)
 	{
 		for (size_t j = 0; j < TerrainRegions.Num(); j++)
 		{
-			if (VerticesHeights[i] <= TerrainRegions[j].height * (MaxHeightMultiplier-MinHeightMultiplier)) {
+			/*if (VerticesHeights[i] <= MinHeightMultiplier + TerrainRegions[j].height * (MaxHeightMultiplier-MinHeightMultiplier)) {
 				colors[i] = TerrainRegions[j].color;
-				UE_LOG(LogTemp, Warning, TEXT("color %d"), j)
-
-				//UE_LOG(LogTemp, Warning, TEXT("Vertex Height: %f Region Height: %f"),VerticesHeights[i], TerrainRegions[j].height * (MaxHeightMultiplier-MinHeightMultiplier))
-			}
+			}*/
+			colors[i] = FLinearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		}
 	}
 

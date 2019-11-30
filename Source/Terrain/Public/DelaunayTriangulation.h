@@ -14,6 +14,7 @@ class Point2;
 class PerlinNoise;
 class MeshGenerator;
 class MeshData;
+class TerrainType;
 
 UCLASS()
 class TERRAIN_API ADelaunayTriangulation : public AActor
@@ -89,6 +90,7 @@ private:
 	//Mesh components
 	MeshGenerator * meshGenerator = NULL;
 	MeshData * meshData = NULL;
+	TerrainType * terrainType = NULL;
 
 	void PostActorCreated();
 	void PostLoad();

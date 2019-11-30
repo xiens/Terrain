@@ -103,24 +103,36 @@ void ATerrainSpawner::SpawnTerrainActors() {
 	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
 
 	////MOUNTAIN
-	Height = 300;
+	/*Height = 10;
 	Divisions = 256;
-	Scale = 4.0f;
+	Scale = 10.0f;
 	SpawnPerlinNoiseAtLocation(TerrainSamplesNum, "Persistance", -0.1f, CurrentLocation, true);
-	Divisions = 256;
-
-	//Height = 180;
-	//SpawnDiamondSquareAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
-
-	//Height = 300;
-	//Divisions = 128;
-	//SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
-
-	//big terrain
+	Divisions = 256;*/
 	/*Divisions = 256;
-	Size = 1000.0f;
-	Height = 125.0f;
-	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);*/
+	Height = 220;
+	Roughness = 0.30f;
+	SpawnDiamondSquareAtLocation(10, "Roughness", 0.01f, CurrentLocation, true);*/
+	
+	/*Height = 1000;
+	Divisions = 128;
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation, true);*/
+	/*Lacunarity = 0.4f;
+	Height = 1300;
+	Divisions = 128;
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Lacunarity", 0.01f, CurrentLocation, true);*/
+
+	/*Height = 600;
+	Divisions = 128;
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Lacunarity", 0.1f, CurrentLocation, true);*/
+	//big terrain
+	//Divisions = 256;
+	//Size = 1000.0f;
+	Height = 130.0f;
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
+	Divisions = 32;
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
+	Divisions = 100;
+	SpawnDelaunayAtLocation(TerrainSamplesNum, "Divisions", 3, CurrentLocation, true);
 
 }
 
